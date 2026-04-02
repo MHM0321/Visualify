@@ -4,16 +4,22 @@ import { useEffect, useState } from 'react';
 import NavBar from '../components/NavBar';
 import ProjectCard from '../components/ProjectCard';
 import { useNavigate } from "react-router";
+import {jwtDecode} from "jwt-decode";
 
 const HomePage = () => {
   
   const navigate = useNavigate();
+  
+  const token = localStorage.getItem("token");
+  const decoded = jwtDecode(token);
+  const userId = decoded.id;
+  
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
     const fetchProjects = async() => {
       try {
-        const res = await axios.get("http://localhost:5001/api/projects/69c70206719d51f4b611d45b");
+        const res = await axios.get(`http://localhost:5001/api/projects/${userId}`);
         setProjects(res.data);
       } catch (error) {
         console.log("Error Fetching Notes !");

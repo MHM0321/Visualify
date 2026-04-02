@@ -5,7 +5,7 @@ export default {
     extend: {
       colors: {
         pm: "#4a5878",
-        sc: "#505050",
+        sc: "#3D3D3D",
         bc: "#2c2c2c",
       },
     },
