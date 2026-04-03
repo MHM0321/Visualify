@@ -19,7 +19,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchProjects = async() => {
       try {
-        const res = await axios.get(`http://localhost:5001/api/projects/${userId}`);
+        const res = await axios.get(`http://192.168.10.11:5001/api/projects/${userId}`);
         setProjects(res.data);
       } catch (error) {
         console.log("Error Fetching Notes !");
@@ -41,7 +41,9 @@ const HomePage = () => {
             <ProjectCard key={project._id} project={project}/>
           ))}
 
-          <button className="flex items-center justify-center bg-sc rounded-xl h-20 w-20 text-white text-3xl pb-2" onClick={() => navigate("/create-project")}>+</button>
+          <div className="flex justify-center md:justify-start">
+            <button className="flex items-center justify-center bg-sc rounded-xl h-20 w-20 text-white text-3xl pb-2" onClick={() => navigate("/create-project")}>+</button>
+          </div>
         </div>
 
       </div>
