@@ -19,7 +19,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchProjects = async() => {
       try {
-        const res = await axios.get(`http://192.168.10.11:5001/api/projects/${userId}`);
+        const res = await axios.get(`http://192.168.10.9:5001/api/projects/${userId}`);
         setProjects(res.data);
       } catch (error) {
         console.log("Error Fetching Notes !");

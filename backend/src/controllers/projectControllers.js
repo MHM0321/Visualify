@@ -8,21 +8,30 @@ export const getUserProjects = async(req,res) => {
         res.status(200).json(projects);
     }
     catch (error) {
-        console.log("Error in createUser controller", error);
+        console.log("Error in getUserProjects controller", error);
         res.status(500).json("Internal Server Error");
     }
 };
 
 export async function createUserProject(req,res) {
     try {
-        const {name} = req.body;
+        const { name, members } = req.body;
         const owner = req.params.id;
-        const newProject = new Project({name, owner});
+
+        // members should be an array of { userId, role }
+        // validate roles just in case
+        const sanitizedMembers = Array.isArray(members)
+            ? members
+                .filter(m => m.userId && ['editor', 'viewer'].includes(m.role))
+                .map(m => ({ userId: m.userId, role: m.role }))
+            : [];
+
+        const newProject = new Project({ name, owner, members: sanitizedMembers });
         await newProject.save();
         res.status(201).json(newProject);
     }
     catch (error) {
-        console.log("Error in createUser controller", error);
+        console.log("Error in createUserProject controller", error);
         res.status(500).json("Internal Server Error");        
     }
 };

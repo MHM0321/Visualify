@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
+import axios from 'axios';
+import toast from "react-hot-toast";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -7,8 +9,19 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSignup = () => {
-    // axios logic goes here later
+  const handleSignup = async() => {
+    try {
+      const res = await axios.post("http://192.168.10.9:5001/api/users/signin", {
+            name,
+            email,
+            password
+        });
+        toast.success("Successfully Account Created !");
+        navigate("/");
+    } catch (error) {
+      console.log("Error Signing in");
+      toast.error("Failed to Sign in");
+    }
   };
 
   return (

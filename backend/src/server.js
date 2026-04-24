@@ -11,7 +11,9 @@ dotenv.config();
 const PORT = process.env.PORT || 5001;
 
 app.use(express.json());
-app.use(cors({origin: "http://192.168.10.11:5173"}));
+app.use(cors({
+  origin: ["http://localhost:5173", "http://192.168.10.9:5173"]
+}));
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/screens", screenRoutes);
