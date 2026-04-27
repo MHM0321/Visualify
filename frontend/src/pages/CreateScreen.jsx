@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const API = 'http://192.168.10.9:5001';
+const API = 'http://192.168.10.6:5001';
 
 const CreateScreen = () => {
   const { projectId } = useParams();

@@ -4,7 +4,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { jwtDecode } from 'jwt-decode';
 
-const API = 'http://192.168.10.9:5001';
+const API = 'http://192.168.10.6:5001';
 
 const CreateProject = () => {
   const navigate = useNavigate();

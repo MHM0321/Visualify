@@ -147,7 +147,7 @@ const tools = [
   },
 ];
 
-const RightSidebar = ({ selectedTool, onSelectTool }) => {
+const RightSidebar = ({ selectedTool, onSelectTool, propertiesSlot }) => {
   return (
     <aside className="w-52 border-l border-sc flex flex-col flex-shrink-0 h-[calc(100vh-57px)] overflow-y-auto">
       <div className="flex flex-col gap-1 p-3">
@@ -185,6 +185,13 @@ const RightSidebar = ({ selectedTool, onSelectTool }) => {
           </div>
         ))}
       </div>
+
+      {/* Properties Panel - shown below tools when an element is selected */}
+      {propertiesSlot && (
+        <div className="border-t border-sc mt-1">
+          {propertiesSlot}
+        </div>
+      )}
     </aside>
   );
 };
