@@ -7,6 +7,7 @@ import Signup from './pages/Signup'
 import ScreensPage from './pages/ScreensPage'
 import CreateScreen from './pages/CreateScreen'
 import ProtectedRoute from './components/ProtectedRoute'
+import { useEffect } from 'react'
 
 const App = () => {
   const navigate = useNavigate();
