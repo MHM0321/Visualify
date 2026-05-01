@@ -6,7 +6,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import ScreensPage from './pages/ScreensPage'
 import CreateScreen from './pages/CreateScreen'
-import ProtectedRoute from './components/protectedRoute'
+import ProtectedRoute from './components/ProtectedRoute'
 
 const App = () => {
   const navigate = useNavigate();
