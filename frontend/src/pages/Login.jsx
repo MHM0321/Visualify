@@ -9,6 +9,11 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const handleGoogleLogin = () => {
+    // Redirects the user to the backend Google Auth trigger[cite: 13]
+    window.location.href = `${API}/api/users/google`;
+  };
+
   const handleLogin = async () => {
     try {
         const res = await axios.post(`${API}/api/users/login`, {
@@ -71,6 +76,14 @@ const Login = () => {
           </span>
         </p>
 
+        <button
+          onClick={handleGoogleLogin}
+          className="bg-white text-black border border-gray-300 rounded-xl py-3 font-semibold hover:bg-gray-100 transition flex items-center justify-center gap-2"
+        >
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5"/>
+          Continue with Google
+        </button>
+        
       </div>
     </div>
   );

@@ -58,3 +58,22 @@ export const createUser = async(req, res) => {
         res.status(500).json("Internal Server Error");
     }
 };
+
+export const googleAuthSuccess = (req, res) => {
+    try {
+        // Generate the token exactly like your manual login[cite: 8]
+        const token = jwt.sign(
+            { id: req.user._id, name: req.user.name },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+
+        // Redirect back to the frontend with the token in the URL
+        // The frontend will need to grab this token and save it to localStorage
+        const frontendURL = "https://visualify.boxloid0321321.workers.dev/home";
+        res.redirect(`${frontendURL}?token=${token}`);
+    } catch (error) {
+        console.log("Error in googleAuthSuccess controller", error);
+        res.status(500).json("Internal Server Error");
+    }
+};

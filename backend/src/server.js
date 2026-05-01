@@ -12,6 +12,7 @@ import { registerSocketHandlers } from './config/socketManager.js';
 const app = express();
 dotenv.config();
 const PORT = process.env.PORT || 5001;
+configurePassport();
 
 app.use(express.json());
 app.use(cors({
@@ -25,7 +26,7 @@ app.use("/api/screens", screenRoutes);
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:5173", "http://192.168.10.6:5173"],
+    origin: ["http://localhost:5173", "https://visualify.boxloid0321321.workers.dev"],
     methods: ["GET", "POST"]
   }
 });
