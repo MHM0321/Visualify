@@ -1,1 +1,1 @@
-export const API = 'https://visualify.boxloid0321321.workers.dev';
+export const API = 'https://visualify-production.up.railway.app';
