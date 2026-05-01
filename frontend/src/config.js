@@ -1,1 +1,1 @@
-export const API = 'http://192.168.10.7:5001';
+export const API = 'https://visualify-88pi.vercel.app/';
