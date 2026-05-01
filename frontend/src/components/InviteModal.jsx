@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-
-const API = 'http://192.168.10.6:5001';
+import { API } from '../config';
 
 const InviteModal = ({ projectId, onClose }) => {
   const [searchName, setSearchName] = useState('');

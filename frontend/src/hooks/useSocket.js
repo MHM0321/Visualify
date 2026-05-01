@@ -1,23 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
+import { API } from '../config';
 
-const SOCKET_URL = 'http://192.168.10.6:5001';
-
-export function useSocket({ screenId, userId, name, role }) {
+export function useSocket({ screenId, userId, name, role, projectId }) {
   const socketRef = useRef(null);
   const [viewers, setViewers] = useState([]);
   const [editor, setEditor] = useState(null);
   const [canEdit, setCanEdit] = useState(false);
+  const [newScreen, setNewScreen] = useState(null);
 
   useEffect(() => {
     if (!screenId || !userId) return;
 
-    const socket = io(SOCKET_URL, { transports: ['websocket'] });
+    const socket = io(API, { transports: ['websocket'] });
     socketRef.current = socket;
 
     socket.on('connect', () => {
-      socket.emit('screen:join', { screenId, userId, name, role });
+      socket.emit('screen:join', { screenId, userId, name, role, projectId });
     });
 
     socket.on('edit:status', ({ canEdit: ce }) => {
@@ -34,6 +34,10 @@ export function useSocket({ screenId, userId, name, role }) {
       setEditor(e);
     });
 
+    socket.on('screen:created', ({ screen }) => {
+      setNewScreen(screen);
+    });
+
     return () => {
       socket.emit('screen:leave', { screenId });
       socket.disconnect();
@@ -42,5 +46,9 @@ export function useSocket({ screenId, userId, name, role }) {
   }, [screenId, userId, name, role]);
 
   // Expose socket ref so useCanvas can emit + listen directly
-  return { viewers, editor, canEdit, socketRef };
+  const emitScreenCreated = (screen) => {
+    socketRef.current?.emit('screen:created', { screen });
+  };
+
+  return { viewers, editor, canEdit, socketRef, newScreen, emitScreenCreated };
 }

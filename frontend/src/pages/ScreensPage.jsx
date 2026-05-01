@@ -12,8 +12,7 @@ import PresenceBar from '../components/PresenceBar';
 import InviteModal from '../components/InviteModal';
 import { useCanvas } from '../hooks/useCanvas';
 import { useSocket } from '../hooks/useSocket';
-
-const API = 'http://192.168.10.6:5001';
+import { API } from '../config';
 
 const ScreensPage = () => {
   const { projectId } = useParams();
@@ -44,7 +43,7 @@ const ScreensPage = () => {
     fetchRole();
   }, [projectId, userId]);
 
-  const { viewers, canEdit, socketRef } = useSocket({ screenId: selectedScreenId, userId, name: userName, role: userRole });
+  const { viewers, canEdit, socketRef, newScreen, emitScreenCreated } = useSocket({ screenId: selectedScreenId, userId, name: userName, role: userRole });
   const isReadOnly = !canEdit;
 
   const { elements, selectedId, selectedElement, setSelectedId, loadElements, addElement, addConnector, moveElement, updateProps, deleteElement } = useCanvas(selectedScreenId, isReadOnly, socketRef);
@@ -59,6 +58,15 @@ const ScreensPage = () => {
     };
     fetchScreens();
   }, [projectId]);
+
+  // Live sidebar: append new screen when another user creates one
+  useEffect(() => {
+    if (!newScreen) return;
+    setScreens(prev => {
+      if (prev.find(s => s._id === newScreen._id)) return prev; // dedupe
+      return [...prev, newScreen];
+    });
+  }, [newScreen]);
 
   useEffect(() => {
     if (!selectedScreenId) return;
@@ -165,7 +173,7 @@ const ScreensPage = () => {
             ))}
           </div>
           <div className="px-3 pb-4 mt-1">
-            <button onClick={() => navigate(`/create-screen/${projectId}`)}
+            <button onClick={() => navigate(`/create-screen/${projectId}`, { state: { fromSocket: true } })}
               className="w-full flex items-center justify-center gap-2 bg-sc hover:opacity-80 transition rounded-xl py-3 text-white text-sm">
               <span className="text-xl leading-none pb-0.5">+</span>
               <span>New Screen</span>
@@ -200,7 +208,7 @@ const ScreensPage = () => {
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <p className="text-gray-600 text-sm">No screens yet</p>
-                <button onClick={() => navigate(`/create-screen/${projectId}`)}
+                <button onClick={() => navigate(`/create-screen/${projectId}`, { state: { fromSocket: true } })}
                   className="mt-4 bg-sc text-white rounded-xl px-6 py-3 text-sm hover:opacity-80 transition">
                   + Create your first screen
                 </button>

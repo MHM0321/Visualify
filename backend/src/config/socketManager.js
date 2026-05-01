@@ -33,9 +33,11 @@ export function registerSocketHandlers(io) {
 
     // Client joins a screen room
     // payload: { screenId, userId, name, role }
-    socket.on('screen:join', ({ screenId, userId, name, role }) => {
+    socket.on('screen:join', ({ screenId, userId, name, role, projectId }) => {
       socket.join(screenId);
+      if (projectId) socket.join(`project:${projectId}`);  // also join project room
       socket.data.screenId = screenId;
+      socket.data.projectId = projectId;
       socket.data.userId = userId;
       socket.data.name = name;
       socket.data.role = role;
@@ -54,6 +56,12 @@ export function registerSocketHandlers(io) {
       socket.emit('edit:status', { canEdit });
 
       broadcastPresence(io, screenId);
+    });
+
+    // Notify everyone in the project when a new screen is created
+    socket.on('screen:created', ({ screen, projectId: pid }) => {
+      const projectRoom = `project:${pid || socket.data.projectId}`;
+      socket.to(projectRoom).emit('screen:created', { screen });
     });
 
     // Editor broadcasts canvas changes — relay to everyone else in the room

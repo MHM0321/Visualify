@@ -22,7 +22,7 @@ const PresenceBar = ({ viewers, onInviteClick }) => {
 
         {/* Viewer dropdown */}
         {showViewers && (
-          <div className="absolute right-0 top-8 bg-bc border border-sc rounded-xl shadow-xl z-50 min-w-[180px] py-2">
+          <div style={{ position: "fixed", right: 16, top: 64, zIndex: 9999, minWidth: 180, background: "var(--color-bc, #1a1a1a)", border: "1px solid var(--color-sc, #3D3D3D)", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.5)", padding: "8px 0" }}>
             {viewers.length === 0 ? (
               <p className="text-gray-500 text-xs px-4 py-2">No viewers</p>
             ) : (

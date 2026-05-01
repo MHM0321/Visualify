@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { jwtDecode } from 'jwt-decode';
-
-const API = 'http://192.168.10.6:5001';
+import { API } from '../config';
 
 const CreateProject = () => {
   const navigate = useNavigate();

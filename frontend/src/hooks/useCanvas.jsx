@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import axios from 'axios';
-
-const API = 'http://192.168.10.6:5001';
+import { API } from '../config';
 
 export const CONNECTOR_TYPES = new Set(['line', 'arrow-one', 'arrow-both', 'dotted']);
 export const CONTAINER_TYPES = new Set(['rectangle', 'ellipse', 'rect-1partition', 'rect-2partition', 'rect-1row', 'rect-2rows', 'imagebox', 'textbox']);

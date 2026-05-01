@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5001;
 
 app.use(express.json());
 app.use(cors({
-  origin: ["http://localhost:5173", "http://192.168.10.6:5173"]
+  origin: ["http://localhost:5173", "http://192.168.10.7:5173"]
 }));
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);

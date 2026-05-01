@@ -1,18 +1,20 @@
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { CONNECTOR_TYPES, CONTAINER_TYPES } from '../hooks/useCanvas';
 
-// ── Anchor helpers ─────────────────────────────────────────────────────────────
+// ── Constants ──────────────────────────────────────────────────────────────────
+const MIN_ZOOM = 0.1;
+const MAX_ZOOM = 4;
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
+// ── Anchor helpers ─────────────────────────────────────────────────────────────
 function getAnchors(el) {
   const { width, height } = el.props;
-  if (el.type === 'ellipse') {
-    return [
-      { id: 'top',    x: width / 2, y: 0 },
-      { id: 'right',  x: width,     y: height / 2 },
-      { id: 'bottom', x: width / 2, y: height },
-      { id: 'left',   x: 0,         y: height / 2 },
-    ];
-  }
+  if (el.type === 'ellipse') return [
+    { id: 'top',    x: width / 2, y: 0          },
+    { id: 'right',  x: width,     y: height / 2 },
+    { id: 'bottom', x: width / 2, y: height     },
+    { id: 'left',   x: 0,         y: height / 2 },
+  ];
   return [
     { id: 'tl', x: 0,         y: 0          },
     { id: 'tc', x: width / 2, y: 0          },
@@ -32,7 +34,6 @@ function anchorAbsPos(el, anchorId) {
 }
 
 // ── Element renderers ──────────────────────────────────────────────────────────
-
 function RectEl({ el, isSelected }) {
   const { width, height, fill, borderColor, borderWidth, radius } = el.props;
   return <div style={{
@@ -145,15 +146,14 @@ function renderElement(el, isSelected) {
       <line x1={0} y1={height/3} x2={width} y2={height/3} stroke={borderColor} strokeWidth={borderWidth} />
       <line x1={0} y1={2*height/3} x2={width} y2={2*height/3} stroke={borderColor} strokeWidth={borderWidth} />
     </>)} />;
-    case 'textbox':         return <TextBoxEl el={el} isSelected={isSelected} />;
-    case 'imagebox':        return <ImageBoxEl el={el} isSelected={isSelected} />;
-    case 'pen':             return <PenEl el={el} isSelected={isSelected} />;
-    default:                return null;
+    case 'textbox':  return <TextBoxEl el={el} isSelected={isSelected} />;
+    case 'imagebox': return <ImageBoxEl el={el} isSelected={isSelected} />;
+    case 'pen':      return <PenEl el={el} isSelected={isSelected} />;
+    default:         return null;
   }
 }
 
 // ── Anchor dots ────────────────────────────────────────────────────────────────
-
 function AnchorDots({ el, onAnchorClick, pendingFrom }) {
   return (
     <>
@@ -178,7 +178,6 @@ function AnchorDots({ el, onAnchorClick, pendingFrom }) {
 }
 
 // ── SVG connector layer ────────────────────────────────────────────────────────
-
 function ConnectorLayer({ connectors, elements, selectedId, onSelect }) {
   const elMap = Object.fromEntries(elements.map(e => [e.id, e]));
   return (
@@ -192,10 +191,10 @@ function ConnectorLayer({ connectors, elements, selectedId, onSelect }) {
         const sel = selectedId === conn.id;
         const as = 9;
         const ang = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-        const a1x = p2.x - as * Math.cos(ang - Math.PI/7), a1y = p2.y - as * Math.sin(ang - Math.PI/7);
-        const a2x = p2.x - as * Math.cos(ang + Math.PI/7), a2y = p2.y - as * Math.sin(ang + Math.PI/7);
-        const b1x = p1.x + as * Math.cos(ang - Math.PI/7), b1y = p1.y + as * Math.sin(ang - Math.PI/7);
-        const b2x = p1.x + as * Math.cos(ang + Math.PI/7), b2y = p1.y + as * Math.sin(ang + Math.PI/7);
+        const a1x = p2.x - as*Math.cos(ang-Math.PI/7), a1y = p2.y - as*Math.sin(ang-Math.PI/7);
+        const a2x = p2.x - as*Math.cos(ang+Math.PI/7), a2y = p2.y - as*Math.sin(ang+Math.PI/7);
+        const b1x = p1.x + as*Math.cos(ang-Math.PI/7), b1y = p1.y + as*Math.sin(ang-Math.PI/7);
+        const b2x = p1.x + as*Math.cos(ang+Math.PI/7), b2y = p1.y + as*Math.sin(ang+Math.PI/7);
         return (
           <g key={conn.id} style={{ pointerEvents: 'stroke', cursor: 'pointer' }} onClick={() => onSelect(conn.id)}>
             <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke="transparent" strokeWidth={14} />
@@ -217,10 +216,55 @@ function ConnectorLayer({ connectors, elements, selectedId, onSelect }) {
   );
 }
 
-// ── Draggable placed element ───────────────────────────────────────────────────
-
-function PlacedElement({ el, isSelected, isConnectorMode, onSelect, onMove, pendingFrom, onAnchorClick, showAnchors }) {
+// ── Placed element (draggable) ─────────────────────────────────────────────────
+function PlacedElement({ el, isSelected, isConnectorMode, onSelect, onMove, pendingFrom, onAnchorClick, showAnchors, onSignalTouch }) {
   const didDrag = useRef(false);
+  const divRef = useRef(null);
+  const touchDrag = useRef(null);
+
+  // Register touch listeners as native+non-passive on the element div
+  // This ensures they fire in the same event pass as the canvas native listeners
+  // and onSignalTouch is called BEFORE the canvas touchstart handler checks the flag
+  useEffect(() => {
+    const div = divRef.current;
+    if (!div) return;
+
+    const onTouchStart = (e) => {
+      // Set flag FIRST — canvas native listener bubbles up after this
+      if (onSignalTouch) onSignalTouch();
+      if (isConnectorMode || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      touchDrag.current = { tx: t.clientX, ty: t.clientY, ox: el.x, oy: el.y, moved: false };
+    };
+
+    const onTouchMove = (e) => {
+      if (!touchDrag.current || e.touches.length !== 1) return;
+      e.stopPropagation();
+      const t = e.touches[0];
+      const dx = t.clientX - touchDrag.current.tx;
+      const dy = t.clientY - touchDrag.current.ty;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        touchDrag.current.moved = true;
+        onMove(el.id, touchDrag.current.ox + dx, touchDrag.current.oy + dy);
+      }
+    };
+
+    const onTouchEnd = (e) => {
+      if (!touchDrag.current) return;
+      if (!touchDrag.current.moved) onSelect(el.id);
+      touchDrag.current = null;
+    };
+
+    div.addEventListener('touchstart', onTouchStart, { passive: true });
+    div.addEventListener('touchmove',  onTouchMove,  { passive: true });
+    div.addEventListener('touchend',   onTouchEnd,   { passive: true });
+    return () => {
+      div.removeEventListener('touchstart', onTouchStart);
+      div.removeEventListener('touchmove',  onTouchMove);
+      div.removeEventListener('touchend',   onTouchEnd);
+    };
+  // Re-register when these change so closures stay fresh
+  }, [isConnectorMode, onSignalTouch, onSelect, onMove, el.id, el.x, el.y]);
 
   const handleMouseDown = (e) => {
     if (e.button !== 0) return;
@@ -247,135 +291,19 @@ function PlacedElement({ el, isSelected, isConnectorMode, onSelect, onMove, pend
   };
 
   return (
-    <div onMouseDown={handleMouseDown}
-      style={{ position: 'absolute', left: el.x, top: el.y, cursor: isConnectorMode ? 'default' : 'move', userSelect: 'none' }}>
+    <div
+      ref={divRef}
+      onMouseDown={handleMouseDown}
+      style={{ position: 'absolute', left: el.x, top: el.y, cursor: isConnectorMode ? 'default' : 'move', userSelect: 'none', touchAction: 'none' }}
+    >
       {renderElement(el, isSelected)}
       {showAnchors && <AnchorDots el={el} onAnchorClick={onAnchorClick} pendingFrom={pendingFrom} />}
     </div>
   );
 }
 
-// ── Canvas ─────────────────────────────────────────────────────────────────────
-
-const Canvas = ({ elements, selectedId, selectedTool, onPlace, onSelect, onMove, onConnectorComplete, onPenStroke, readOnly }) => {
-  const canvasRef = useRef(null);
-  const [pendingFrom, setPendingFrom] = useState(null);
-  // pen drawing state
-  const penDrawing = useRef(false);
-  const penPoints = useRef([]);
-
-  const isConnectorMode = CONNECTOR_TYPES.has(selectedTool);
-  const isPenMode = selectedTool === 'pen';
-  const containers = elements.filter(el => CONTAINER_TYPES.has(el.type));
-  const connectors = elements.filter(el => CONNECTOR_TYPES.has(el.type));
-  const pens = elements.filter(el => el.type === 'pen');
-
-  const getCanvasPos = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-  };
-
-  const handleAnchorClick = useCallback((elId, anchorId) => {
-    if (!pendingFrom) {
-      setPendingFrom({ elId, anchorId });
-    } else {
-      if (pendingFrom.elId === elId && pendingFrom.anchorId === anchorId) { setPendingFrom(null); return; }
-      onConnectorComplete(selectedTool, pendingFrom.elId, pendingFrom.anchorId, elId, anchorId);
-      setPendingFrom(null);
-    }
-  }, [pendingFrom, selectedTool, onConnectorComplete]);
-
-  // ── Pen mouse events ──
-  const handleMouseDown = useCallback((e) => {
-    if (e.button !== 0) return;
-    if (readOnly) return;
-
-    if (isPenMode) {
-      const pos = getCanvasPos(e);
-      penDrawing.current = true;
-      penPoints.current = [pos];
-      return;
-    }
-
-    if (e.target === canvasRef.current) {
-      onSelect(null);
-      if (pendingFrom) setPendingFrom(null);
-    }
-  }, [isPenMode, onSelect, pendingFrom, readOnly]);
-
-  const handleMouseMove = useCallback((e) => {
-    if (!penDrawing.current) return;
-    const pos = getCanvasPos(e);
-    penPoints.current = [...penPoints.current, pos];
-    // Force re-render for live preview — we'll use a state trick
-    // Actually we use an overlayCanvas for live preview
-  }, []);
-
-  const handleMouseUp = useCallback((e) => {
-    if (!penDrawing.current) return;
-    penDrawing.current = false;
-    if (penPoints.current.length > 1) {
-      onPenStroke(penPoints.current);
-    }
-    penPoints.current = [];
-  }, [onPenStroke]);
-
-  const handleClick = useCallback((e) => {
-    if (readOnly) return;
-    if (isConnectorMode || isPenMode) return;
-    if (!selectedTool) return;
-    if (e.target !== canvasRef.current) return;
-    const pos = getCanvasPos(e);
-    onPlace(selectedTool, pos.x, pos.y);
-  }, [selectedTool, isConnectorMode, isPenMode, onPlace, readOnly]);
-
-  return (
-    <div
-      ref={canvasRef}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onClick={handleClick}
-      onContextMenu={e => e.preventDefault()}
-      style={{
-        position: 'relative', width: '100%', height: '100%',
-        cursor: isPenMode ? 'crosshair' : (selectedTool && !isConnectorMode ? 'crosshair' : 'default'),
-        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px)',
-        backgroundSize: '24px 24px',
-        overflow: 'hidden',
-        userSelect: 'none',
-      }}
-    >
-      <ConnectorLayer connectors={connectors} elements={containers} selectedId={selectedId} onSelect={onSelect} />
-
-      {containers.map(el => (
-        <PlacedElement key={el.id} el={el}
-          isSelected={selectedId === el.id}
-          isConnectorMode={isConnectorMode}
-          showAnchors={isConnectorMode}
-          pendingFrom={pendingFrom}
-          onSelect={onSelect} onMove={readOnly ? () => {} : onMove}
-          onAnchorClick={handleAnchorClick}
-        />
-      ))}
-
-      {pens.map(el => (
-        <PlacedElement key={el.id} el={el}
-          isSelected={selectedId === el.id}
-          isConnectorMode={false} showAnchors={false}
-          onSelect={onSelect} onMove={readOnly ? () => {} : onMove}
-          onAnchorClick={() => {}}
-        />
-      ))}
-
-      {/* Live pen preview overlay */}
-      <PenPreviewOverlay penDrawing={penDrawing} penPoints={penPoints} isPenMode={isPenMode} />
-    </div>
-  );
-};
-
-// Live pen preview using a canvas element
-function PenPreviewOverlay({ penDrawing, penPoints, isPenMode }) {
+// ── Pen preview overlay ────────────────────────────────────────────────────────
+function PenPreviewOverlay({ penDrawing, penPoints, isPenMode, zoomRef, panRef }) {
   const overlayRef = useRef(null);
   const rafRef = useRef(null);
 
@@ -388,27 +316,353 @@ function PenPreviewOverlay({ penDrawing, penPoints, isPenMode }) {
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (penDrawing.current && penPoints.current.length > 1) {
+        const zoom = zoomRef.current;
+        const pan  = panRef.current;
         ctx.beginPath();
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 2;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.moveTo(penPoints.current[0].x, penPoints.current[0].y);
-        penPoints.current.forEach(p => ctx.lineTo(p.x, p.y));
+        const pts = penPoints.current;
+        ctx.moveTo(pts[0].x * zoom + pan.x, pts[0].y * zoom + pan.y);
+        pts.forEach(p => ctx.lineTo(p.x * zoom + pan.x, p.y * zoom + pan.y));
         ctx.stroke();
       }
       rafRef.current = requestAnimationFrame(draw);
     };
     rafRef.current = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [isPenMode]);
+  }, [isPenMode]);  // only zoom/pan refs used — no re-subscribe needed
 
   if (!isPenMode) return null;
   return (
-    <canvas ref={overlayRef} width={window.innerWidth} height={window.innerHeight}
-      style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 20 }} />
+    <canvas ref={overlayRef}
+      width={typeof window !== 'undefined' ? window.innerWidth * 2 : 800}
+      height={typeof window !== 'undefined' ? window.innerHeight * 2 : 600}
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 20 }}
+    />
   );
 }
 
-import { useEffect } from 'react';
+// ── Canvas ─────────────────────────────────────────────────────────────────────
+const Canvas = ({ elements, selectedId, selectedTool, onPlace, onSelect, onMove, onConnectorComplete, onPenStroke, readOnly }) => {
+  const outerRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const [zoom, setZoom] = useState(isMobile ? 0.5 : 1);
+  const [pan, setPan]   = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [pendingFrom, setPendingFrom] = useState(null);
+
+  // Refs that mirror zoom/pan for use inside rAF callbacks (avoid stale closures)
+  const zoomRef = useRef(zoom);
+  const panRef  = useRef(pan);
+  useEffect(() => { zoomRef.current = zoom; }, [zoom]);
+  useEffect(() => { panRef.current  = pan;  }, [pan]);
+
+  // Pen drawing state
+  const penDrawing = useRef(false);
+  const penPoints  = useRef([]);
+
+  // Pan state (ref-based so mouse/touch handlers don't go stale)
+  const isPanningRef = useRef(false);
+  const panStartRef  = useRef(null);  // { mx, my, px, py }
+  const spaceDown    = useRef(false);
+
+  const isConnectorMode = CONNECTOR_TYPES.has(selectedTool);
+  const isPenMode       = selectedTool === 'pen';
+  const containers = elements.filter(el => CONTAINER_TYPES.has(el.type));
+  const connectors = elements.filter(el => CONNECTOR_TYPES.has(el.type));
+  const pens       = elements.filter(el => el.type === 'pen');
+
+  // Convert screen coords → canvas coords
+  const toCanvasPos = useCallback((clientX, clientY) => {
+    const rect = outerRef.current.getBoundingClientRect();
+    return {
+      x: (clientX - rect.left - panRef.current.x) / zoomRef.current,
+      y: (clientY - rect.top  - panRef.current.y) / zoomRef.current,
+    };
+  }, []);
+
+  const startPan = useCallback((mx, my) => {
+    isPanningRef.current = true;
+    setIsPanning(true);
+    panStartRef.current = { mx, my, px: panRef.current.x, py: panRef.current.y };
+  }, []);
+
+  const stopPan = useCallback(() => {
+    isPanningRef.current = false;
+    setIsPanning(false);
+    panStartRef.current = null;
+  }, []);
+
+  const applyPan = useCallback((clientX, clientY) => {
+    if (!panStartRef.current) return;
+    setPan({
+      x: panStartRef.current.px + clientX - panStartRef.current.mx,
+      y: panStartRef.current.py + clientY - panStartRef.current.my,
+    });
+  }, []);
+
+  // ── Keyboard space = pan mode ──
+  useEffect(() => {
+    const down = (e) => { if (e.code === 'Space') { e.preventDefault(); spaceDown.current = true; } };
+    const up   = (e) => { if (e.code === 'Space') { spaceDown.current = false; } };
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); };
+  }, []);
+
+  // ── Wheel zoom ──
+  const handleWheel = useCallback((e) => {
+    e.preventDefault();
+    const rect = outerRef.current.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const delta = -e.deltaY * 0.001;
+    setZoom(z => {
+      const next = clamp(z * (1 + delta), MIN_ZOOM, MAX_ZOOM);
+      setPan(p => ({
+        x: mx - (mx - p.x) * (next / z),
+        y: my - (my - p.y) * (next / z),
+      }));
+      return next;
+    });
+  }, []);
+
+  // ── Touch handlers ──
+  // All stored in refs so the non-passive addEventListener doesn't go stale
+  const lastTouchDist   = useRef(null);
+  const lastTouchMid    = useRef(null);
+  const touchPanRef     = useRef(null); // { tx, ty, px, py } for single-finger pan
+  const touchOnElement  = useRef(false); // set by PlacedElement before canvas native listener fires
+
+  const handleTouchStart = useCallback((e) => {
+    if (e.touches.length === 2) {
+      // Two-finger: prepare for pinch + pan; cancel any single-finger pan
+      touchPanRef.current = null;
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      lastTouchDist.current = Math.hypot(dx, dy);
+      lastTouchMid.current = {
+        x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+        y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
+      };
+    } else if (e.touches.length === 1) {
+      if (touchOnElement.current) {
+        // Touch started on an element — don't pan
+        touchOnElement.current = false;
+        touchPanRef.current = null;
+        return;
+      }
+      touchPanRef.current = {
+        tx: e.touches[0].clientX,
+        ty: e.touches[0].clientY,
+        px: panRef.current.x,
+        py: panRef.current.y,
+      };
+    }
+  }, []);
+
+  const handleTouchMove = useCallback((e) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.hypot(dx, dy);
+      const mid = {
+        x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+        y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
+      };
+      const rect = outerRef.current.getBoundingClientRect();
+      const mx = mid.x - rect.left;
+      const my = mid.y - rect.top;
+
+      if (lastTouchDist.current) {
+        const scale = dist / lastTouchDist.current;
+        setZoom(z => {
+          const next = clamp(z * scale, MIN_ZOOM, MAX_ZOOM);
+          setPan(p => ({
+            x: mx - (mx - p.x) * (next / z),
+            y: my - (my - p.y) * (next / z),
+          }));
+          return next;
+        });
+      }
+      if (lastTouchMid.current) {
+        setPan(p => ({
+          x: p.x + mid.x - lastTouchMid.current.x,
+          y: p.y + mid.y - lastTouchMid.current.y,
+        }));
+      }
+      lastTouchDist.current = dist;
+      lastTouchMid.current = mid;
+
+    } else if (e.touches.length === 1 && touchPanRef.current) {
+      e.preventDefault();
+      const tp = touchPanRef.current;
+      setPan({
+        x: tp.px + e.touches[0].clientX - tp.tx,
+        y: tp.py + e.touches[0].clientY - tp.ty,
+      });
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    lastTouchDist.current = null;
+    lastTouchMid.current  = null;
+    touchPanRef.current   = null;
+  }, []);
+
+  // Register wheel + touch non-passively (must be after handler definitions)
+  useEffect(() => {
+    const el = outerRef.current;
+    if (!el) return;
+    el.addEventListener('wheel',      handleWheel,      { passive: false });
+    el.addEventListener('touchstart', handleTouchStart, { passive: false });
+    el.addEventListener('touchmove',  handleTouchMove,  { passive: false });
+    el.addEventListener('touchend',   handleTouchEnd,   { passive: false });
+    return () => {
+      el.removeEventListener('wheel',      handleWheel);
+      el.removeEventListener('touchstart', handleTouchStart);
+      el.removeEventListener('touchmove',  handleTouchMove);
+      el.removeEventListener('touchend',   handleTouchEnd);
+    };
+  }, [handleWheel, handleTouchStart, handleTouchMove, handleTouchEnd]);
+
+  // ── Connector anchor click ──
+  const handleAnchorClick = useCallback((elId, anchorId) => {
+    if (!pendingFrom) {
+      setPendingFrom({ elId, anchorId });
+    } else {
+      if (pendingFrom.elId === elId && pendingFrom.anchorId === anchorId) { setPendingFrom(null); return; }
+      onConnectorComplete(selectedTool, pendingFrom.elId, pendingFrom.anchorId, elId, anchorId);
+      setPendingFrom(null);
+    }
+  }, [pendingFrom, selectedTool, onConnectorComplete]);
+
+  // ── Mouse handlers ──
+  const handleMouseDown = useCallback((e) => {
+    if (e.button === 1 || (e.button === 0 && spaceDown.current)) {
+      startPan(e.clientX, e.clientY);
+      e.preventDefault();
+      return;
+    }
+    if (e.button !== 0) return;
+
+    if (!readOnly && isPenMode) {
+      penDrawing.current = true;
+      penPoints.current = [toCanvasPos(e.clientX, e.clientY)];
+      return;
+    }
+
+    // Click on empty canvas: pan + deselect
+    if (!isPenMode) startPan(e.clientX, e.clientY);
+    onSelect(null);
+    if (pendingFrom) setPendingFrom(null);
+  }, [isPenMode, readOnly, startPan, toCanvasPos, onSelect, pendingFrom]);
+
+  const handleMouseMove = useCallback((e) => {
+    if (isPanningRef.current) { applyPan(e.clientX, e.clientY); return; }
+    if (penDrawing.current) penPoints.current = [...penPoints.current, toCanvasPos(e.clientX, e.clientY)];
+  }, [applyPan, toCanvasPos]);
+
+  const handleMouseUp = useCallback((e) => {
+    if (isPanningRef.current) { stopPan(); return; }
+    if (penDrawing.current) {
+      penDrawing.current = false;
+      if (penPoints.current.length > 1) onPenStroke(penPoints.current);
+      penPoints.current = [];
+    }
+  }, [stopPan, onPenStroke]);
+
+  // Click = place element (only fires if not dragging)
+  const handleClick = useCallback((e) => {
+    if (readOnly || isConnectorMode || isPenMode) return;
+    if (!selectedTool) return;
+    if (e.target !== outerRef.current && e.target !== canvasRef.current) return;
+    onPlace(selectedTool, ...Object.values(toCanvasPos(e.clientX, e.clientY)));
+  }, [selectedTool, isConnectorMode, isPenMode, onPlace, readOnly, toCanvasPos]);
+
+  const cursor = isPanning || spaceDown.current
+    ? 'grabbing'
+    : !isPenMode && !selectedTool && !isConnectorMode ? 'grab'
+    : isPenMode || (selectedTool && !isConnectorMode) ? 'crosshair'
+    : 'default';
+
+  return (
+    <div
+      ref={outerRef}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onClick={handleClick}
+      onContextMenu={e => e.preventDefault()}
+      style={{
+        position: 'relative', width: '100%', height: '100%', overflow: 'hidden',
+        cursor,
+        backgroundImage: `radial-gradient(circle, rgba(255,255,255,${0.18 * Math.min(zoom, 1)}) 1px, transparent 1px)`,
+        backgroundSize: `${24 * zoom}px ${24 * zoom}px`,
+        backgroundPosition: `${pan.x}px ${pan.y}px`,
+        userSelect: 'none', touchAction: 'none',
+      }}
+    >
+      {/* Zoom controls */}
+      <div style={{ position: 'absolute', bottom: 24, right: 16, zIndex: 50, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <button onClick={() => setZoom(z => clamp(z / 1.25, MIN_ZOOM, MAX_ZOOM))}
+          style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+        <span onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
+          style={{ color: '#9ca3af', fontSize: 12, cursor: 'pointer', minWidth: 44, textAlign: 'center', padding: '4px 0' }}>
+          {Math.round(zoom * 100)}%
+        </span>
+        <button onClick={() => setZoom(z => clamp(z * 1.25, MIN_ZOOM, MAX_ZOOM))}
+          style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+      </div>
+
+      {/* Transformed canvas surface */}
+      <div
+        ref={canvasRef}
+        style={{
+          position: 'absolute', top: 0, left: 0,
+          width: 0, height: 0,
+          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+          transformOrigin: '0 0',
+        }}
+      >
+        <ConnectorLayer connectors={connectors} elements={containers} selectedId={selectedId} onSelect={onSelect} />
+
+        {containers.map(el => (
+          <PlacedElement key={el.id} el={el}
+            isSelected={selectedId === el.id}
+            isConnectorMode={isConnectorMode}
+            showAnchors={isConnectorMode}
+            pendingFrom={pendingFrom}
+            onSelect={onSelect}
+            onMove={readOnly ? () => {} : onMove}
+            onAnchorClick={handleAnchorClick}
+            onSignalTouch={() => { touchOnElement.current = true; }}
+          />
+        ))}
+
+        {pens.map(el => (
+          <PlacedElement key={el.id} el={el}
+            isSelected={selectedId === el.id}
+            isConnectorMode={false} showAnchors={false}
+            onSelect={onSelect}
+            onMove={readOnly ? () => {} : onMove}
+            onAnchorClick={() => {}}
+            onSignalTouch={() => { touchOnElement.current = true; }}
+          />
+        ))}
+      </div>
+
+      <PenPreviewOverlay
+        penDrawing={penDrawing} penPoints={penPoints}
+        isPenMode={isPenMode} zoomRef={zoomRef} panRef={panRef}
+      />
+    </div>
+  );
+};
+
 export default Canvas;

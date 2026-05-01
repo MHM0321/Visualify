@@ -5,6 +5,7 @@ import NavBar from '../components/NavBar';
 import ProjectCard from '../components/ProjectCard';
 import { useNavigate } from "react-router";
 import {jwtDecode} from "jwt-decode";
+import { API } from '../config';
 
 const HomePage = () => {
   
@@ -19,7 +20,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchProjects = async() => {
       try {
-        const res = await axios.get(`http://192.168.10.6:5001/api/projects/${userId}`);
+        const res = await axios.get(`${API}/api/projects/${userId}`);
         setProjects(res.data);
       } catch (error) {
         console.log("Error Fetching Notes !");
