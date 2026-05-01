@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5001;
 
 app.use(express.json());
 app.use(cors({
-  origin: ["http://localhost:5173", "https://visualify-eight.vercel.app"]
+  origin: ["http://localhost:5173", "https://visualify.boxloid0321321.workers.dev"]
 }));
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
