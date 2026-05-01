@@ -14,9 +14,20 @@ dotenv.config();
 const PORT = process.env.PORT || 5001;
 
 app.use(express.json());
+// 1. Update Express CORS
 app.use(cors({
-  origin: ["http://localhost:5173", "https://visualify.boxloid0321321.workers.dev"]
+  origin: ["http://localhost:5173", "https://visualify.boxloid0321321.workers.dev"],
+  credentials: true // Add this for login cookies/sessions
 }));
+
+// 2. Update Socket.io CORS[cite: 1]
+const io = new Server(httpServer, {
+  cors: {
+    origin: ["http://localhost:5173", "https://visualify.boxloid0321321.workers.dev"],
+    methods: ["GET", "POST"]
+  }
+});
+
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/screens", screenRoutes);
