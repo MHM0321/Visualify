@@ -8,6 +8,7 @@ import userRoutes from "./routes/userRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import screenRoutes from "./routes/screenRoutes.js";
 import { registerSocketHandlers } from './config/socketManager.js';
+import { configurePassport } from './config/passport.js';
 
 const app = express();
 dotenv.config();
