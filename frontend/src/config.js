@@ -1,1 +1,1 @@
-export const API = 'https://visualify-eight.vercel.app/';
+export const API = 'https://visualify-eight.vercel.app';
