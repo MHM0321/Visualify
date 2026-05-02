@@ -182,15 +182,17 @@ function AnchorDots({ el, onAnchorClick, pendingFrom, anchorClickedRef }) {
 }
 
 // ── SVG connector layer ────────────────────────────────────────────────────────
-function ConnectorLayer({ connectors, elements, selectedId, onSelect }) {
+function ConnectorLayer({ connectors, elements, selectedId, onSelect, zoom, pan }) {
   const elMap = Object.fromEntries(elements.map(e => [e.id, e]));
+  // Convert canvas-space point to screen-space using current zoom+pan
+  const toScreen = (p) => ({ x: p.x * zoom + pan.x, y: p.y * zoom + pan.y });
   return (
-    <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible' }}>
+    <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible', zIndex: 5 }}>
       {connectors.map(conn => {
         const from = elMap[conn.fromId], to = elMap[conn.toId];
         if (!from || !to) return null;
-        const p1 = anchorAbsPos(from, conn.fromAnchor);
-        const p2 = anchorAbsPos(to, conn.toAnchor);
+        const p1 = toScreen(anchorAbsPos(from, conn.fromAnchor));
+        const p2 = toScreen(anchorAbsPos(to, conn.toAnchor));
         const { color, strokeWidth } = conn.props;
         const sel = selectedId === conn.id;
         const as = 9;
@@ -631,6 +633,16 @@ const Canvas = ({ elements, selectedId, selectedTool, onPlace, onSelect, onMove,
           style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
       </div>
 
+      {/* Connector SVG layer — outside transform so it fills the full viewport */}
+      <ConnectorLayer
+        connectors={connectors}
+        elements={containers}
+        selectedId={selectedId}
+        onSelect={onSelect}
+        zoom={zoom}
+        pan={pan}
+      />
+
       {/* Transformed canvas surface */}
       <div
         ref={canvasRef}
@@ -641,8 +653,6 @@ const Canvas = ({ elements, selectedId, selectedTool, onPlace, onSelect, onMove,
           transformOrigin: '0 0',
         }}
       >
-        <ConnectorLayer connectors={connectors} elements={containers} selectedId={selectedId} onSelect={onSelect} />
-
         {containers.map(el => (
           <PlacedElement key={el.id} el={el}
             isSelected={selectedId === el.id}
