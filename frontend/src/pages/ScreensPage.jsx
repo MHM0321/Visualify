@@ -27,6 +27,8 @@ const ScreensPage = () => {
   const [showInvite, setShowInvite] = useState(false);
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [newScreenName, setNewScreenName] = useState('');
 
   // --- AUTH & PERMISSIONS LOGIC ---
   const token = localStorage.getItem('token');
@@ -228,6 +230,30 @@ const isReadOnly = !loading && !isEditor;
     <div className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden" onClick={onClose} />
   );
 
+  const handleCreateScreen = async (e) => {
+  e.preventDefault();
+  if (!newScreenName.trim()) return toast.error("Name is required");
+
+  const t = toast.loading("Creating screen...");
+  try {
+    // Hits the POST /api/screens/:id endpoint
+    const res = await axios.post(`${API}/api/screens/${projectId}`, {
+      name: newScreenName.trim()
+    });
+
+    // Add the new screen to state and select it immediately
+    setScreens(prev => [...prev, res.data]);
+    setSelectedScreenId(res.data._id);
+    
+    // Reset local input state
+    setNewScreenName('');
+    setIsCreating(false);
+    toast.success("Screen created!", { id: t });
+  } catch (err) {
+    toast.error("Failed to create screen", { id: t });
+  }
+};
+
   return (
     <div className="bg-bc min-h-screen flex flex-col">
       <NavBar
@@ -260,8 +286,42 @@ const isReadOnly = !loading && !isEditor;
             ))}
           </div>
           <div className="px-3 pb-4">
-            <button onClick={() => navigate(`/create-screen/${projectId}`, { state: { fromSocket: true } })} className="w-full bg-sc hover:opacity-80 rounded-xl py-3 text-white text-sm">+ New Screen</button>
-          </div>
+  {isCreating ? (
+    <form onSubmit={handleCreateScreen} className="flex flex-col gap-2">
+      <input
+        autoFocus
+        type="text"
+        placeholder="Enter screen name..."
+        value={newScreenName}
+        onChange={(e) => setNewScreenName(e.target.value)}
+        className="bg-bc border border-sc rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-pm"
+      />
+      <div className="flex gap-2">
+        <button 
+          type="submit" 
+          className="flex-1 bg-sc text-white text-xs py-2 rounded-lg hover:opacity-80"
+        >
+          Create
+        </button>
+        <button 
+          type="button" 
+          onClick={() => { setIsCreating(false); setNewScreenName(''); }}
+          className="px-3 bg-bc border border-sc text-gray-400 text-xs py-2 rounded-lg"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  ) : (
+    <button 
+      onClick={() => setIsCreating(true)}
+      disabled={isReadOnly}
+      className={`w-full bg-sc hover:opacity-80 rounded-xl py-3 text-white text-sm transition ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+    >
+      + New Screen
+    </button>
+  )}
+</div>
         </aside>
 
         <main className="flex-1 overflow-hidden relative min-w-0">
