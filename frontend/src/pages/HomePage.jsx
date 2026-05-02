@@ -13,7 +13,7 @@ const HomePage = () => {
   
   const token = localStorage.getItem("token");
   const decoded = jwtDecode(token);
-  const userId = decoded.id;
+  const userId = decoded.id || decoded.sub;
   
   const [projects, setProjects] = useState([]);
 
