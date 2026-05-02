@@ -58,3 +58,52 @@ export const uploadToDrive = async (content, fileName, format) => {
     tokenClient.requestAccessToken({ prompt: 'consent' });
   });
 };
+
+const loadPicker = () => {
+  return new Promise((resolve) => {
+    window.gapi.load('picker', { callback: resolve });
+  });
+};
+
+export const openDrivePicker = async () => {
+  return new Promise((resolve, reject) => {
+    const tokenClient = window.google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: async (response) => {
+        if (response.error) return reject(response);
+
+        const accessToken = response.access_token;
+        await loadPicker();
+
+        const picker = new window.google.picker.PickerBuilder()
+          .addView(window.google.picker.ViewId.DOCS)
+          .setOAuthToken(accessToken)
+          .setDeveloperKey(API_KEY)
+          .setCallback(async (data) => {
+            if (data.action === window.google.picker.Action.PICKED) {
+              const fileId = data.docs[0].id;
+              
+              // Fetch file content using the fileId
+              try {
+                const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                  headers: { Authorization: `Bearer ${accessToken}` }
+                });
+                const json = await res.json();
+                resolve(json);
+              } catch (err) {
+                reject("Failed to fetch file content");
+              }
+            } else if (data.action === window.google.picker.Action.CANCEL) {
+              reject("Picker cancelled");
+            }
+          })
+          .build();
+
+        picker.setVisible(true);
+      },
+    });
+
+    tokenClient.requestAccessToken({ prompt: 'none' });
+  });
+};

@@ -15,6 +15,7 @@ import { useSocket } from '../hooks/useSocket';
 import { API } from '../config';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { openDrivePicker } from '../utils/googleDriveHelper';
 
 const ScreensPage = () => {
   const { projectId } = useParams();
@@ -148,27 +149,39 @@ const handleExport = async (format, destination) => {
     }
   };
 
-  const handleImport = (source) => {
-    if (source === 'local') {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.json';
-      input.onchange = (e) => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          try {
-            loadElements(JSON.parse(event.target.result));
-            toast.success("Design imported successfully!");
-          } catch { toast.error("Invalid JSON file"); }
-        };
-        reader.readAsText(file);
+  const handleImport = async (source) => {
+  if (source === 'local') {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          loadElements(JSON.parse(event.target.result));
+          toast.success("Design imported!");
+        } catch { toast.error("Invalid JSON file"); }
       };
-      input.click();
-    } else {
-      toast("Drive picker coming soon! (Use Local for now)");
+      reader.readAsText(file);
+    };
+    input.click();
+  } else {
+    // --- DRIVE PICKER LOGIC ---
+    const t = toast.loading("Opening Google Drive...");
+    try {
+      const data = await openDrivePicker();
+      loadElements(data); // Use the loadElements hook from useCanvas
+      toast.success("Drive file imported!", { id: t });
+    } catch (err) {
+      if (err === "Picker cancelled") {
+        toast.dismiss(t);
+      } else {
+        toast.error("Could not load from Drive", { id: t });
+      }
     }
-  };
+  }
+};
 
   const handlePenStroke = useCallback((points) => {
     if (isReadOnly || points.length < 2) return;
