@@ -12,6 +12,10 @@ const Signup = () => {
 
   const handleSignup = async() => {
     try {
+      if (!/^[a-z0-9._%+-]+@gmail\.com$/i.test(email.trim())) {
+        toast.error("Please use a valid @gmail.com address for email/password signup.");
+        return;
+      }
       const res = await axios.post(`${API}/api/users/signin`, {
             name,
             email,
@@ -21,7 +25,7 @@ const Signup = () => {
         navigate("/");
     } catch (error) {
       console.log("Error Signing in");
-      toast.error("Failed to Sign in");
+      toast.error(error?.response?.data || "Failed to Sign in");
     }
   };
 

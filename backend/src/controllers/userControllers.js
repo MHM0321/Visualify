@@ -2,6 +2,16 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+function normalizeEmail(email) {
+    return String(email || "").trim().toLowerCase();
+}
+
+function isGmailAddress(email) {
+    const e = normalizeEmail(email);
+    // Require the literal gmail.com domain for non-Google auth (no workspace domains).
+    return /^[a-z0-9._%+-]+@gmail\.com$/.test(e);
+}
+
 export async function getAllUsers(_, res) {
     try
     {
@@ -18,7 +28,12 @@ export async function getAllUsers(_, res) {
 export async function getUserByLogin(req, res) {
     try
     {
-        const u = await User.findOne({email: req.body.email});
+        const email = normalizeEmail(req.body.email);
+        if (!isGmailAddress(email)) {
+            return res.status(400).json("Only valid @gmail.com emails can log in with email/password.");
+        }
+
+        const u = await User.findOne({email});
 
         if(!u) {return res.status(404).json("Email not found");}
 
@@ -43,7 +58,20 @@ export async function getUserByLogin(req, res) {
 export const createUser = async(req, res) => {
     try
     {
-        const {name, email, password, avatarUrl} = req.body;
+        const {name, password, avatarUrl} = req.body;
+        const email = normalizeEmail(req.body.email);
+
+        if (!isGmailAddress(email)) {
+            return res.status(400).json("Only valid @gmail.com emails can sign up with email/password.");
+        }
+        if (!password || String(password).length < 6) {
+            return res.status(400).json("Password must be at least 6 characters.");
+        }
+
+        const existing = await User.findOne({ email });
+        if (existing) {
+            return res.status(409).json("Email already exists");
+        }
         
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);

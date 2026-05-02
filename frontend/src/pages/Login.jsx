@@ -16,6 +16,10 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
+        if (!/^[a-z0-9._%+-]+@gmail\.com$/i.test(email.trim())) {
+          toast.error("Please use a valid @gmail.com address for email/password login.");
+          return;
+        }
         const res = await axios.post(`${API}/api/users/login`, {
             email,
             password
@@ -26,7 +30,7 @@ const Login = () => {
     }
     catch (error) {
         console.log("Error logging in");
-        toast.error("Failed to Log in");
+        toast.error(error?.response?.data || "Failed to Log in");
     }
   };
 

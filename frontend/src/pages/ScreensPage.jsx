@@ -15,7 +15,7 @@ import { useSocket } from '../hooks/useSocket';
 import { API } from '../config';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { openDrivePicker } from '../utils/googleDriveHelper';
+import { openDrivePickerWithConsentFallback, uploadToDrive } from '../utils/googleDriveHelper';
 
 const ScreensPage = () => {
   const { projectId } = useParams();
@@ -196,8 +196,8 @@ const isReadOnly = !loading && !isEditor;
         link.click();
         toast.success("Saved to downloads!", { id: t });
       } else {
-        // Assume uploadToDrive is defined in your helper or globally
-        toast.error("Drive upload logic required", { id: t });
+        await uploadToDrive(content, fileName, format);
+        toast.success("Uploaded to Google Drive!", { id: t });
       }
     } catch (err) {
       toast.error("Export failed", { id: t });
@@ -233,7 +233,7 @@ const isReadOnly = !loading && !isEditor;
     } else {
       const t = toast.loading("Opening Drive...");
       try {
-        const data = await openDrivePicker();
+        const data = await openDrivePickerWithConsentFallback();
         loadElements(data);
         toast.success("Drive import successful!", { id: t });
       } catch (err) {
