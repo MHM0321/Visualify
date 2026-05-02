@@ -65,13 +65,10 @@ const isEditor = isOwner || projectData?.members?.some(collab =>
   String(collab.userId) === String(currentUserId) && collab.role === 'editor'
 );
 
-// Only be "ReadOnly" if we are CERTAIN we aren't an editor
-const isReadOnly = !loading && !isEditor;
-
   // --- SOCKET & CANVAS HOOKS ---
-  // Only join socket once we know the real role — avoids joining as viewer before projectData loads
-  const socketRole = projectData === null ? null : (isReadOnly ? 'viewer' : 'editor');
-  const { viewers, socketRef, newScreen } = useSocket({ 
+  // Join with project-level role; per-screen lock is enforced by `canEdit`.
+  const socketRole = projectData === null ? null : (isEditor ? 'editor' : 'viewer');
+  const { viewers, editor, canEdit, socketRef, newScreen } = useSocket({ 
     screenId: selectedScreenId, 
     userId: currentUserId, 
     name: userName, 
@@ -79,6 +76,23 @@ const isReadOnly = !loading && !isEditor;
     role: socketRole,
     projectId,
   });
+
+  // Final editability: viewers are always read-only, editors need screen lock.
+  const isReadOnly = loading || !isEditor || !canEdit;
+  const lockHeldByOtherEditor = !loading && isEditor && !canEdit;
+  const viewerRoleOnly = !loading && !isEditor;
+
+  let statusPill = null;
+  if (!loading) {
+    if (!isReadOnly) {
+      statusPill = { text: 'Editing', className: 'text-green-300 border-green-700/60' };
+    } else if (lockHeldByOtherEditor) {
+      const holder = editor?.name ? ` (${editor.name})` : '';
+      statusPill = { text: `View only — another editor active${holder}`, className: 'text-amber-200 border-amber-700/60' };
+    } else if (viewerRoleOnly) {
+      statusPill = { text: 'View only — viewer role', className: 'text-gray-400 border-sc' };
+    }
+  }
 
   const { 
     elements, selectedId, selectedElement, setSelectedId, 
@@ -357,10 +371,10 @@ const isReadOnly = !loading && !isEditor;
         </aside>
 
         <main className="flex-1 overflow-hidden relative min-w-0">
-          {isReadOnly && (
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-bc border border-sc rounded-full px-4 py-1.5 text-gray-400 text-xs flex items-center gap-2">
+          {statusPill && (
+            <div className={`absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-bc border rounded-full px-4 py-1.5 text-xs flex items-center gap-2 ${statusPill.className}`}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              View only
+              {statusPill.text}
             </div>
           )}
           {selectedScreenId ? (

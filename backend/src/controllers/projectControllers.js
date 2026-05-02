@@ -3,8 +3,14 @@ import User from "../models/User.js";
 
 export const getUserProjects = async(req, res) => {
     try {
-        const projects = await Project.find({owner: req.params.id}).sort({createdAt:-1});
-        if(projects.length === 0) {return res.status(404).json({message: "No Projects Found"});}
+        const userId = req.params.id;
+        // Include both owned projects and projects where the user is an invited member.
+        const projects = await Project.find({
+            $or: [
+                { owner: userId },
+                { 'members.userId': userId },
+            ],
+        }).sort({createdAt:-1});
         res.status(200).json(projects);
     } catch (error) {
         console.log("Error in getUserProjects controller", error);
