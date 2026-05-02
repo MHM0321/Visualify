@@ -20,10 +20,13 @@ import { openDrivePicker } from '../utils/googleDriveHelper';
 const ScreensPage = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
+  const [projectData, setProjectData] = useState(null);
 
   const token = localStorage.getItem('token');
   const decoded = jwtDecode(token);
-  const userId = decoded.id;
+  const UserId = decoded.id || decoded.sub;
+  const currentUserId = decoded.id || decoded.sub;
+  const isOwner = projectData && String(projectData.ownerId) === String(currentUserId);
   const userName = decoded.name;
 
   const [screens, setScreens] = useState([]);
@@ -61,6 +64,12 @@ const ScreensPage = () => {
     };
     fetchScreens();
   }, [projectId]);
+
+  const isEditor = isOwner || projectData?.collaborators?.some(collab => 
+    String(collab.userId) === String(currentUserId) && collab.role === 'editor'
+  );
+
+  const isReadOnly = !isEditor;
 
   // Live sidebar: append new screen when another user creates one
   useEffect(() => {
@@ -150,23 +159,30 @@ const handleExport = async (format, destination) => {
   };
 
   const handleImport = async (source) => {
-  if (source === 'local') {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          loadElements(JSON.parse(event.target.result));
-          toast.success("Design imported!");
-        } catch { toast.error("Invalid JSON file"); }
+    if (isReadOnly) {
+      toast.error("Viewers do not have permission to import designs.");
+      return;
+    }
+
+    const confirmMessage = "⚠️ WARNING: This will permanently replace all elements on your current screen. Are you sure you want to continue?";
+    if (!window.confirm(confirmMessage)) return;
+    if (source === 'local') {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            loadElements(JSON.parse(event.target.result));
+            toast.success("Design imported!");
+          } catch { toast.error("Invalid JSON file"); }
+        };
+        reader.readAsText(file);
       };
-      reader.readAsText(file);
-    };
-    input.click();
-  } else {
+      input.click();
+    } else {
     // --- DRIVE PICKER LOGIC ---
     const t = toast.loading("Opening Google Drive...");
     try {
@@ -201,6 +217,7 @@ const handleExport = async (format, destination) => {
       <NavBar
         onExport={handleExport} 
         onImport={handleImport}
+        isReadOnly={isReadOnly}
         extraRight={
           <PresenceBar viewers={viewers} onInviteClick={() => setShowInvite(true)} />
         }
