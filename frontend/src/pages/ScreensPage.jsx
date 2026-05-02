@@ -87,12 +87,19 @@ const isReadOnly = !loading && !isEditor;
   // Per-screen in-memory cache so switching screens never "forgets" unsynced state.
   // This prevents rehydrating from stale `screens[]` content until a refresh.
   const screenElementsCacheRef = useRef(new Map());
+  const activeScreenIdRef = useRef(null);
 
-  // Keep cache updated for the currently selected screen.
   useEffect(() => {
-    if (!selectedScreenId) return;
-    screenElementsCacheRef.current.set(selectedScreenId, elements);
-  }, [selectedScreenId, elements]);
+    activeScreenIdRef.current = selectedScreenId;
+  }, [selectedScreenId]);
+
+  // Keep cache updated only when elements change.
+  // Avoid writing during screen-id transitions (which can copy previous screen content).
+  useEffect(() => {
+    const activeId = activeScreenIdRef.current;
+    if (!activeId) return;
+    screenElementsCacheRef.current.set(activeId, elements);
+  }, [elements]);
 
   // --- SCREEN MANAGEMENT ---
   useEffect(() => {
