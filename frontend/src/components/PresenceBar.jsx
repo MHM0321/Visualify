@@ -28,9 +28,18 @@ const PresenceBar = ({ viewers, onInviteClick }) => {
             ) : (
               viewers.map((v, i) => (
                 <div key={i} className="flex items-center gap-2 px-4 py-2 hover:bg-sc hover:bg-opacity-30 transition">
-                  <div className="w-6 h-6 rounded-full bg-pm flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                    {v.name?.[0]?.toUpperCase() ?? '?'}
-                  </div>
+                  {v.avatarUrl ? (
+                    <img
+                      src={v.avatarUrl}
+                      alt={v.name || 'User'}
+                      referrerPolicy="no-referrer"
+                      className="w-6 h-6 rounded-full object-cover flex-shrink-0 border border-sc"
+                    />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-pm flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                      {v.name?.[0]?.toUpperCase() ?? '?'}
+                    </div>
+                  )}
                   <span className="text-white text-sm truncate">{v.name}</span>
                 </div>
               ))

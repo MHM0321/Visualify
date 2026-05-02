@@ -34,6 +34,7 @@ const ScreensPage = () => {
   const token = localStorage.getItem('token');
   const decoded = jwtDecode(token);
   const userName = decoded.name;
+  const userAvatarUrl = decoded.avatarUrl ?? null;
   
   // Handles both standard ID and Google 'sub' ID
   const currentUserId = decoded.id || decoded.sub;
@@ -74,6 +75,7 @@ const isReadOnly = !loading && !isEditor;
     screenId: selectedScreenId, 
     userId: currentUserId, 
     name: userName, 
+    avatarUrl: userAvatarUrl,
     role: socketRole,
     projectId,
   });

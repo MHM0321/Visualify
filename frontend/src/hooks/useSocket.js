@@ -3,7 +3,7 @@ import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import { API } from '../config';
 
-export function useSocket({ screenId, userId, name, role, projectId }) {
+export function useSocket({ screenId, userId, name, avatarUrl = null, role, projectId }) {
   const socketRef = useRef(null);
   const [viewers, setViewers] = useState([]);
   const [editor, setEditor] = useState(null);
@@ -17,7 +17,7 @@ export function useSocket({ screenId, userId, name, role, projectId }) {
     socketRef.current = socket;
 
     socket.on('connect', () => {
-      socket.emit('screen:join', { screenId, userId, name, role, projectId });
+      socket.emit('screen:join', { screenId, userId, name, avatarUrl, role, projectId });
     });
 
     socket.on('edit:status', ({ canEdit: ce }) => {
@@ -43,7 +43,7 @@ export function useSocket({ screenId, userId, name, role, projectId }) {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [screenId, userId, name, role]);
+  }, [screenId, userId, name, avatarUrl, role, projectId]);
 
   // Expose socket ref so useCanvas can emit + listen directly
   const emitScreenCreated = (screen) => {

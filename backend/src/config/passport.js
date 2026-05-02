@@ -11,15 +11,20 @@ export const configurePassport = () => {
     async (accessToken, refreshToken, profile, done) => {
       try {
         let user = await User.findOne({ email: profile.emails[0].value });
+        const profileAvatar = profile.photos?.[0]?.value ?? null;
         
         if (!user) {
           user = new User({
             name: profile.displayName,
             email: profile.emails[0].value,
-            avatarUrl: profile.photos[0].value,
+            avatarUrl: profileAvatar,
             // Generate a random password for OAuth users since they don't provide one[cite: 8]
             password: Math.random().toString(36).slice(-10), 
           });
+          await user.save();
+        } else if (profileAvatar && user.avatarUrl !== profileAvatar) {
+          // Keep avatar in sync with Google profile for presence circles.
+          user.avatarUrl = profileAvatar;
           await user.save();
         }
         return done(null, user);

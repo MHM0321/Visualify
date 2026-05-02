@@ -41,7 +41,7 @@ export async function getUserByLogin(req, res) {
         if(!isMatch) {return res.status(401).json("Incorrect Password");}
 
         const token = jwt.sign(
-            { id: u._id, name: u.name},
+            { id: u._id, name: u.name, avatarUrl: u.avatarUrl ?? null },
             process.env.JWT_SECRET,
             { expiresIn: "7d" }
         );
@@ -91,7 +91,7 @@ export const googleAuthSuccess = (req, res) => {
     try {
         // Generate the token exactly like your manual login[cite: 8]
         const token = jwt.sign(
-            { id: req.user._id, name: req.user.name },
+            { id: req.user._id, name: req.user.name, avatarUrl: req.user.avatarUrl ?? null },
             process.env.JWT_SECRET,
             { expiresIn: "7d" }
         );

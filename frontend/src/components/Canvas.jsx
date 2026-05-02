@@ -415,8 +415,24 @@ const Canvas = ({ elements, selectedId, selectedTool, onPlace, onSelect, onMove,
 
   // ── Keyboard space = pan mode ──
   useEffect(() => {
-    const down = (e) => { if (e.code === 'Space') { e.preventDefault(); spaceDown.current = true; } };
-    const up   = (e) => { if (e.code === 'Space') { spaceDown.current = false; } };
+    const isTypingTarget = (t) => {
+      const el = t;
+      if (!el) return false;
+      const tag = el.tagName;
+      return el.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+    };
+
+    const down = (e) => {
+      if (e.code !== 'Space') return;
+      if (isTypingTarget(e.target)) return; // allow spaces in text fields
+      e.preventDefault();
+      spaceDown.current = true;
+    };
+    const up = (e) => {
+      if (e.code !== 'Space') return;
+      if (isTypingTarget(e.target)) return;
+      spaceDown.current = false;
+    };
     window.addEventListener('keydown', down);
     window.addEventListener('keyup', up);
     return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); };

@@ -32,18 +32,19 @@ export function registerSocketHandlers(io) {
   io.on('connection', (socket) => {
 
     // Client joins a screen room
-    // payload: { screenId, userId, name, role }
-    socket.on('screen:join', ({ screenId, userId, name, role, projectId }) => {
+    // payload: { screenId, userId, name, avatarUrl, role, projectId }
+    socket.on('screen:join', ({ screenId, userId, name, avatarUrl, role, projectId }) => {
       socket.join(screenId);
       if (projectId) socket.join(`project:${projectId}`);  // also join project room
       socket.data.screenId = screenId;
       socket.data.projectId = projectId;
       socket.data.userId = userId;
       socket.data.name = name;
+      socket.data.avatarUrl = avatarUrl ?? null;
       socket.data.role = role;
 
       const room = getRoom(screenId);
-      room.viewers.set(socket.id, { userId, name });
+      room.viewers.set(socket.id, { userId, name, avatarUrl: avatarUrl ?? null });
 
       // Try to claim edit lock if editor and no one else is editing
       let canEdit = false;
