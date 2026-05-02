@@ -76,7 +76,12 @@ export function useCanvas(screenId, isReadOnly = false, socketRef = null) {
   // ── Public API ───────────────────────────────────────────────────────────────
 
   const loadElements = useCallback((content) => {
-    setElements(content?.elements ?? []);
+    // Accept either `{ elements: [...] }` or a raw `[...]` array (older exports/imports).
+    if (Array.isArray(content)) {
+      setElements(content);
+    } else {
+      setElements(content?.elements ?? []);
+    }
     setSelectedId(null);
   }, []);
 

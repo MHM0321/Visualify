@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
@@ -84,6 +84,16 @@ const isReadOnly = !loading && !isEditor;
     updateProps, deleteElement 
   } = useCanvas(selectedScreenId, isReadOnly, socketRef);
 
+  // Per-screen in-memory cache so switching screens never "forgets" unsynced state.
+  // This prevents rehydrating from stale `screens[]` content until a refresh.
+  const screenElementsCacheRef = useRef(new Map());
+
+  // Keep cache updated for the currently selected screen.
+  useEffect(() => {
+    if (!selectedScreenId) return;
+    screenElementsCacheRef.current.set(selectedScreenId, elements);
+  }, [selectedScreenId, elements]);
+
   // --- SCREEN MANAGEMENT ---
   useEffect(() => {
     const fetchScreens = async () => {
@@ -106,6 +116,12 @@ const isReadOnly = !loading && !isEditor;
 
   useEffect(() => {
     if (!selectedScreenId) return;
+    // Prefer cached elements (latest local state) over potentially stale `screens[]` content.
+    const cached = screenElementsCacheRef.current.get(selectedScreenId);
+    if (cached) {
+      loadElements(cached);
+      return;
+    }
     const screen = screens.find(s => s._id === selectedScreenId);
     if (screen) loadElements(screen.content);
   }, [selectedScreenId, screens, loadElements]);
@@ -198,7 +214,9 @@ const isReadOnly = !loading && !isEditor;
         const reader = new FileReader();
         reader.onload = (event) => {
           try {
-            loadElements(JSON.parse(event.target.result));
+            const parsed = JSON.parse(event.target.result);
+            // Allow importing either an exported elements array or `{ elements: [...] }`.
+            loadElements(parsed);
             toast.success("Imported!");
           } catch { toast.error("Invalid file"); }
         };
