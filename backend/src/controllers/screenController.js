@@ -3,7 +3,6 @@ import Screen from "../models/Screen.js";
 export async function getProjectScreens(req, res) {
     try {
         const screens = await Screen.find({projectId: req.params.id}).sort({order: 1});
-        if(screens.length === 0) {return res.status(404).json({message: "No Screens Found"});}
         res.status(200).json(screens);
     }
     catch (error) {

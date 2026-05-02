@@ -37,26 +37,33 @@ const ScreensPage = () => {
   const currentUserId = decoded.id || decoded.sub;
 
   // 1. Fetch Project Data to determine ownership
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const res = await axios.get(`${API}/api/projects/single/${projectId}`);
-        setProjectData(res.data);
-      } catch (err) {
-        console.error("Failed to fetch project data", err);
-      }
-    };
-    fetchProject();
-  }, [projectId]);
-
   // 2. Determine Permissions
   // Add a loading check
-  const isDataLoaded = projectData !== null;
-  const isOwner = projectData && String(projectData.owner) === String(currentUserId);
-  const isEditor = isOwner || projectData?.members?.some(collab => 
-    String(collab.userId) === String(currentUserId) && collab.role === 'editor'
-  );
-  const isReadOnly = isDataLoaded && !isEditor;
+  // Add a loading state
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  const fetchProject = async () => {
+    try {
+      const res = await axios.get(`${API}/api/projects/single/${projectId}`);
+      setProjectData(res.data);
+    } catch (err) {
+      console.error("Failed to fetch project", err);
+    } finally {
+      setLoading(false); // Data attempt finished
+    }
+  };
+  fetchProject();
+}, [projectId]);
+
+// Update permission logic to wait for loading
+const isOwner = projectData && String(projectData.owner) === String(currentUserId);
+const isEditor = isOwner || projectData?.members?.some(collab => 
+  String(collab.userId) === String(currentUserId) && collab.role === 'editor'
+);
+
+// Only be "ReadOnly" if we are CERTAIN we aren't an editor
+const isReadOnly = !loading && !isEditor;
 
   // --- SOCKET & CANVAS HOOKS ---
   // Only join socket once we know the real role — avoids joining as viewer before projectData loads
