@@ -354,6 +354,7 @@ function PenPreviewOverlay({ penDrawing, penPoints, isPenMode, zoomRef, panRef }
 const Canvas = ({ elements, selectedId, selectedTool, onPlace, onSelect, onMove, onConnectorComplete, onPenStroke, readOnly }) => {
   const outerRef = useRef(null);
   const canvasRef = useRef(null);
+  const captureRef = useRef(null);
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const [zoom, setZoom] = useState(isMobile ? 0.5 : 1);
@@ -612,6 +613,7 @@ const Canvas = ({ elements, selectedId, selectedTool, onPlace, onSelect, onMove,
       onMouseUp={handleMouseUp}
       onClick={handleClick}
       onContextMenu={e => e.preventDefault()}
+      className="canvas-container"
       style={{
         position: 'relative', width: '100%', height: '100%', overflow: 'hidden',
         cursor,
@@ -619,6 +621,7 @@ const Canvas = ({ elements, selectedId, selectedTool, onPlace, onSelect, onMove,
         backgroundSize: `${24 * zoom}px ${24 * zoom}px`,
         backgroundPosition: `${pan.x}px ${pan.y}px`,
         userSelect: 'none', touchAction: 'none',
+        backgroundColor: '#121212' // Ensure a solid background for image exports
       }}
     >
       {/* Zoom controls */}

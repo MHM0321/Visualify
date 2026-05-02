@@ -13,6 +13,8 @@ import InviteModal from '../components/InviteModal';
 import { useCanvas } from '../hooks/useCanvas';
 import { useSocket } from '../hooks/useSocket';
 import { API } from '../config';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const ScreensPage = () => {
   const { projectId } = useParams();
@@ -100,6 +102,74 @@ const ScreensPage = () => {
     setSelectedTool(null);
   }, [addConnector, isReadOnly]);
 
+const handleExport = async (format, destination) => {
+    const canvasElement = document.querySelector('.canvas-container');
+    if (!canvasElement) return;
+
+    const t = toast.loading(`Generating ${format.toUpperCase()}...`);
+
+    try {
+      let content;
+      const fileName = `Export_${selectedScreenId}_${Date.now()}`;
+
+      // 1. GENERATE CONTENT
+      if (format === 'json') {
+        content = JSON.stringify(elements, null, 2);
+      } else {
+        const canvas = await html2canvas(canvasElement, {
+          backgroundColor: '#121212',
+          scale: 2,
+          useCORS: true
+        });
+        
+        if (format === 'png') {
+          content = canvas.toDataURL('image/png');
+        } else {
+          const pdf = new jsPDF('l', 'px', [canvas.width, canvas.height]);
+          pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
+          content = pdf.output('blob');
+        }
+      }
+
+      // 2. ROUTE TO DESTINATION
+      if (destination === 'local') {
+        const link = document.createElement('a');
+        link.download = `${fileName}.${format}`;
+        link.href = format === 'pdf' ? URL.createObjectURL(content) : (format === 'json' ? `data:text/json;charset=utf-8,${encodeURIComponent(content)}` : content);
+        link.click();
+        toast.success("Saved to your downloads!", { id: t });
+      } else {
+        await uploadToDrive(content, fileName, format);
+        toast.success("Saved to Google Drive!", { id: t });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Export failed. Check console for details.", { id: t });
+    }
+  };
+
+  const handleImport = (source) => {
+    if (source === 'local') {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            loadElements(JSON.parse(event.target.result));
+            toast.success("Design imported successfully!");
+          } catch { toast.error("Invalid JSON file"); }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    } else {
+      toast("Drive picker coming soon! (Use Local for now)");
+    }
+  };
+
   const handlePenStroke = useCallback((points) => {
     if (isReadOnly || points.length < 2) return;
     const xs = points.map(p => p.x), ys = points.map(p => p.y);
@@ -116,6 +186,8 @@ const ScreensPage = () => {
   return (
     <div className="bg-bc min-h-screen flex flex-col">
       <NavBar
+        onExport={handleExport} 
+        onImport={handleImport}
         extraRight={
           <PresenceBar viewers={viewers} onInviteClick={() => setShowInvite(true)} />
         }
