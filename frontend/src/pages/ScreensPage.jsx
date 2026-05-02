@@ -40,7 +40,7 @@ const ScreensPage = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const res = await axios.get(`${API}/api/projects/single/${projectId}`);
+        const res = await axios.get(`${API}/api/projects/${projectId}`);
         setProjectData(res.data);
       } catch (err) {
         console.error("Failed to fetch project data", err);
@@ -49,19 +49,22 @@ const ScreensPage = () => {
     fetchProject();
   }, [projectId]);
 
-  // 2. Determine Permissions — use correct schema fields: owner + members[].userId/role
-  const isOwner = projectData && String(projectData.owner) === String(currentUserId);
-  const isEditor = isOwner || projectData?.members?.some(m =>
-    String(m.userId) === String(currentUserId) && m.role === 'editor'
+  // 2. Determine Permissions
+  const isOwner = projectData && String(projectData.ownerId) === String(currentUserId);
+  const isEditor = isOwner || projectData?.collaborators?.some(collab => 
+    String(collab.userId) === String(currentUserId) && collab.role === 'editor'
   );
   const isReadOnly = !isEditor;
 
   // --- SOCKET & CANVAS HOOKS ---
+  // Only join socket once we know the real role — avoids joining as viewer before projectData loads
+  const socketRole = projectData === null ? null : (isReadOnly ? 'viewer' : 'editor');
   const { viewers, socketRef, newScreen } = useSocket({ 
     screenId: selectedScreenId, 
     userId: currentUserId, 
     name: userName, 
-    role: isReadOnly ? 'viewer' : 'editor' 
+    role: socketRole,
+    projectId,
   });
 
   const { 
@@ -80,7 +83,7 @@ const ScreensPage = () => {
       } catch { setScreens([]); }
     };
     fetchScreens();
-  }, [projectId, selectedScreenId]);
+  }, [projectId]);
 
   useEffect(() => {
     if (!newScreen) return;
