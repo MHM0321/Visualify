@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
-
-const SOCKET_URL = 'http://192.168.10.9:5001';
+import { API } from '../config';
 
 export function useSocket({ screenId, userId, name, role, projectId }) {
   const socketRef = useRef(null);
@@ -14,7 +13,7 @@ export function useSocket({ screenId, userId, name, role, projectId }) {
   useEffect(() => {
     if (!screenId || !userId || !role) return;  // wait until role is known
 
-    const socket = io(SOCKET_URL, { transports: ['websocket'] });
+    const socket = io(API, { transports: ['websocket'] });
     socketRef.current = socket;
 
     socket.on('connect', () => {
