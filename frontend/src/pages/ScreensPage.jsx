@@ -50,11 +50,13 @@ const ScreensPage = () => {
   }, [projectId]);
 
   // 2. Determine Permissions
+  // Add a loading check
+  const isDataLoaded = projectData !== null;
   const isOwner = projectData && String(projectData.owner) === String(currentUserId);
   const isEditor = isOwner || projectData?.members?.some(collab => 
     String(collab.userId) === String(currentUserId) && collab.role === 'editor'
   );
-  const isReadOnly = !isEditor;
+  const isReadOnly = isDataLoaded && !isEditor;
 
   // --- SOCKET & CANVAS HOOKS ---
   // Only join socket once we know the real role — avoids joining as viewer before projectData loads
