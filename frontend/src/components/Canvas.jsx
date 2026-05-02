@@ -154,14 +154,18 @@ function renderElement(el, isSelected) {
 }
 
 // ── Anchor dots ────────────────────────────────────────────────────────────────
-function AnchorDots({ el, onAnchorClick, pendingFrom }) {
+function AnchorDots({ el, onAnchorClick, pendingFrom, anchorClickedRef }) {
   return (
     <>
       {getAnchors(el).map(a => {
         const isPending = pendingFrom?.elId === el.id && pendingFrom?.anchorId === a.id;
         return (
           <div key={a.id}
-            onMouseDown={e => { e.stopPropagation(); onAnchorClick(el.id, a.id); }}
+            onMouseDown={e => {
+              e.stopPropagation();
+              if (anchorClickedRef) anchorClickedRef.current = true; // flag BEFORE canvas sees it
+              onAnchorClick(el.id, a.id);
+            }}
             style={{
               position: 'absolute', left: a.x - 5, top: a.y - 5,
               width: 10, height: 10, borderRadius: '50%',
@@ -217,7 +221,7 @@ function ConnectorLayer({ connectors, elements, selectedId, onSelect }) {
 }
 
 // ── Placed element (draggable) ─────────────────────────────────────────────────
-function PlacedElement({ el, isSelected, isConnectorMode, onSelect, onMove, pendingFrom, onAnchorClick, showAnchors, onSignalTouch }) {
+function PlacedElement({ el, isSelected, isConnectorMode, onSelect, onMove, pendingFrom, onAnchorClick, showAnchors, onSignalTouch, anchorClickedRef }) {
   const didDrag = useRef(false);
   const divRef = useRef(null);
   const touchDrag = useRef(null);
@@ -297,7 +301,7 @@ function PlacedElement({ el, isSelected, isConnectorMode, onSelect, onMove, pend
       style={{ position: 'absolute', left: el.x, top: el.y, cursor: isConnectorMode ? 'default' : 'move', userSelect: 'none', touchAction: 'none' }}
     >
       {renderElement(el, isSelected)}
-      {showAnchors && <AnchorDots el={el} onAnchorClick={onAnchorClick} pendingFrom={pendingFrom} />}
+      {showAnchors && <AnchorDots el={el} onAnchorClick={onAnchorClick} pendingFrom={pendingFrom} anchorClickedRef={anchorClickedRef} />}
     </div>
   );
 }
@@ -368,6 +372,7 @@ const Canvas = ({ elements, selectedId, selectedTool, onPlace, onSelect, onMove,
   // Pan state (ref-based so mouse/touch handlers don't go stale)
   const isPanningRef = useRef(false);
   const panStartRef  = useRef(null);  // { mx, my, px, py }
+  const anchorClickedRef = useRef(false); // set by anchor dot before canvas mousedown fires
   const spaceDown    = useRef(false);
 
   const isConnectorMode = CONNECTOR_TYPES.has(selectedTool);
@@ -544,6 +549,12 @@ const Canvas = ({ elements, selectedId, selectedTool, onPlace, onSelect, onMove,
 
   // ── Mouse handlers ──
   const handleMouseDown = useCallback((e) => {
+    // If an anchor dot was just clicked, don't pan or deselect — let handleAnchorClick handle it
+    if (anchorClickedRef.current) {
+      anchorClickedRef.current = false;
+      return;
+    }
+
     if (e.button === 1 || (e.button === 0 && spaceDown.current)) {
       startPan(e.clientX, e.clientY);
       e.preventDefault();
@@ -641,6 +652,7 @@ const Canvas = ({ elements, selectedId, selectedTool, onPlace, onSelect, onMove,
             onSelect={onSelect}
             onMove={readOnly ? () => {} : onMove}
             onAnchorClick={handleAnchorClick}
+            anchorClickedRef={anchorClickedRef}
             onSignalTouch={() => { touchOnElement.current = true; }}
           />
         ))}
