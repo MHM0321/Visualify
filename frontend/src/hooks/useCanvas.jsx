@@ -85,6 +85,15 @@ export function useCanvas(screenId, isReadOnly = false, socketRef = null) {
     setSelectedId(null);
   }, []);
 
+  // Replace the current canvas and persist/broadcast the change.
+  // Use this for imports; do NOT use it for hydration when switching screens.
+  const replaceElements = useCallback((content) => {
+    const next = Array.isArray(content) ? content : (content?.elements ?? []);
+    setElements(next);
+    setSelectedId(null);
+    apply(next);
+  }, [apply]);
+
   const addElement = useCallback((type, x, y) => {
     const el = {
       id: `${type}-${Date.now()}`,
@@ -146,7 +155,7 @@ export function useCanvas(screenId, isReadOnly = false, socketRef = null) {
 
   return {
     elements, selectedId, selectedElement,
-    setSelectedId, loadElements,
+    setSelectedId, loadElements, replaceElements,
     addElement, addConnector, moveElement, updateProps, deleteElement,
   };
 }

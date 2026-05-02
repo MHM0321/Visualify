@@ -80,7 +80,7 @@ const isReadOnly = !loading && !isEditor;
 
   const { 
     elements, selectedId, selectedElement, setSelectedId, 
-    loadElements, addElement, addConnector, moveElement, 
+    loadElements, replaceElements, addElement, addConnector, moveElement, 
     updateProps, deleteElement 
   } = useCanvas(selectedScreenId, isReadOnly, socketRef);
 
@@ -223,7 +223,7 @@ const isReadOnly = !loading && !isEditor;
           try {
             const parsed = JSON.parse(event.target.result);
             // Allow importing either an exported elements array or `{ elements: [...] }`.
-            loadElements(parsed);
+            replaceElements(parsed);
             toast.success("Imported!");
           } catch { toast.error("Invalid file"); }
         };
@@ -234,7 +234,7 @@ const isReadOnly = !loading && !isEditor;
       const t = toast.loading("Opening Drive...");
       try {
         const data = await openDrivePickerWithConsentFallback();
-        loadElements(data);
+        replaceElements(data);
         const count = Array.isArray(data) ? data.length : (data?.elements?.length ?? 0);
         if (count === 0) {
           toast.error("Imported file had 0 elements.", { id: t });
