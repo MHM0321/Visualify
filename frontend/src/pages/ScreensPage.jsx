@@ -235,7 +235,12 @@ const isReadOnly = !loading && !isEditor;
       try {
         const data = await openDrivePickerWithConsentFallback();
         loadElements(data);
-        toast.success("Drive import successful!", { id: t });
+        const count = Array.isArray(data) ? data.length : (data?.elements?.length ?? 0);
+        if (count === 0) {
+          toast.error("Imported file had 0 elements.", { id: t });
+        } else {
+          toast.success(`Drive import successful! (${count} elements)`, { id: t });
+        }
       } catch (err) {
         err === "Picker cancelled" ? toast.dismiss(t) : toast.error("Drive error", { id: t });
       }

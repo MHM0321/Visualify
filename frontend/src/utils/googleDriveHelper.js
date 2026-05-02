@@ -9,6 +9,17 @@ function ensureConfigured() {
   if (!window.gapi) throw new Error('Google API (gapi) not loaded');
 }
 
+function normalizeImportedDesign(payload) {
+  // Accept:
+  // - raw array of elements
+  // - { elements: [...] }
+  // - { content: { elements: [...] } } (DB-ish shape)
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.elements)) return payload;
+  if (payload?.content && Array.isArray(payload.content.elements)) return payload.content;
+  return null;
+}
+
 /**
  * Uploads a file (Blob or DataURL) to Google Drive
  */
@@ -121,11 +132,17 @@ export const openDrivePicker = async () => {
 
                 // Drive sometimes returns JSON with odd content-types; be tolerant.
                 if (contentType.includes('application/json')) {
-                  resolve(JSON.parse(text));
+                  const parsed = JSON.parse(text);
+                  const normalized = normalizeImportedDesign(parsed);
+                  if (!normalized) return reject('JSON file is not a Visualify export (missing elements).');
+                  resolve(normalized);
                   return;
                 }
                 try {
-                  resolve(JSON.parse(text));
+                  const parsed = JSON.parse(text);
+                  const normalized = normalizeImportedDesign(parsed);
+                  if (!normalized) return reject('JSON file is not a Visualify export (missing elements).');
+                  resolve(normalized);
                 } catch {
                   reject('Selected file is not valid JSON');
                 }
