@@ -40,7 +40,7 @@ const ScreensPage = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const res = await axios.get(`${API}/api/projects/${projectId}`);
+        const res = await axios.get(`${API}/api/projects/single/${projectId}`);
         setProjectData(res.data);
       } catch (err) {
         console.error("Failed to fetch project data", err);
@@ -49,10 +49,10 @@ const ScreensPage = () => {
     fetchProject();
   }, [projectId]);
 
-  // 2. Determine Permissions
-  const isOwner = projectData && String(projectData.ownerId) === String(currentUserId);
-  const isEditor = isOwner || projectData?.collaborators?.some(collab => 
-    String(collab.userId) === String(currentUserId) && collab.role === 'editor'
+  // 2. Determine Permissions — use correct schema fields: owner + members[].userId/role
+  const isOwner = projectData && String(projectData.owner) === String(currentUserId);
+  const isEditor = isOwner || projectData?.members?.some(m =>
+    String(m.userId) === String(currentUserId) && m.role === 'editor'
   );
   const isReadOnly = !isEditor;
 
