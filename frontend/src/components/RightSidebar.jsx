@@ -149,8 +149,8 @@ const tools = [
 
 const RightSidebar = ({ selectedTool, onSelectTool, propertiesSlot }) => {
   return (
-    <aside className="w-52 border-l border-sc flex flex-col flex-shrink-0 h-[calc(100vh-57px)] overflow-y-auto">
-      <div className="flex flex-col gap-1 p-3">
+    <aside className="w-52 border-l border-sc flex flex-col flex-shrink-0 h-full overflow-y-auto">
+      <div className="flex flex-col gap-1 p-3 pb-8">
         {tools.map((group) => (
           <div key={group.category} className="mb-2">
             {/* Category label */}
@@ -188,7 +188,7 @@ const RightSidebar = ({ selectedTool, onSelectTool, propertiesSlot }) => {
 
       {/* Properties Panel - shown below tools when an element is selected */}
       {propertiesSlot && (
-        <div className="border-t border-sc mt-1">
+        <div className="border-t border-sc mt-1 pb-8">
           {propertiesSlot}
         </div>
       )}

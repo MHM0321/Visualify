@@ -6,6 +6,7 @@ const NavBar = ({ extraLeft, extraRight, onExport, onImport, isReadOnly }) => {
   const token = localStorage.getItem("token");
   const decoded = jwtDecode(token);
   const userName = decoded.name;
+  const avatarUrl = decoded.avatarUrl ?? null;
   
   const [exportMenu, setExportMenu] = useState({ open: false, stage: 1, format: null });
   const [importOpen, setImportOpen] = useState(false);
@@ -23,7 +24,7 @@ const NavBar = ({ extraLeft, extraRight, onExport, onImport, isReadOnly }) => {
   }, []);
 
   return (
-    <div className='flex items-center justify-between bg-bc px-12 py-3 border-b border-b-sc relative z-[100]'>
+    <div className='flex items-center justify-between bg-bc px-4 md:px-12 py-3 border-b border-b-sc relative z-[100]'>
       <div className="flex items-center gap-3">
         {extraLeft}
         
@@ -86,8 +87,22 @@ const NavBar = ({ extraLeft, extraRight, onExport, onImport, isReadOnly }) => {
 
       <div className='flex items-center gap-4'>
         {extraRight}
-        <h3 className='text-white text-sm font-medium'>{userName}</h3>
-        <button className="w-10 h-10 rounded-full bg-pm border border-sc shadow-inner" />
+        <h3 className='text-white text-sm font-medium hidden sm:block'>{userName}</h3>
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt={userName || 'User'}
+            referrerPolicy="no-referrer"
+            className="w-10 h-10 rounded-full object-cover border border-sc shadow-inner"
+          />
+        ) : (
+          <button
+            className="w-10 h-10 rounded-full bg-pm border border-sc shadow-inner flex items-center justify-center text-white text-sm font-bold"
+            aria-label="User avatar"
+          >
+            {userName?.[0]?.toUpperCase() ?? '?'}
+          </button>
+        )}
       </div>
     </div>
   );

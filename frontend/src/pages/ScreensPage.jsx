@@ -321,17 +321,17 @@ const isEditor = isOwner || projectData?.members?.some(collab =>
 
       <div className="flex flex-1 overflow-hidden relative">
         {leftOpen && <Overlay onClose={() => setLeftOpen(false)} />}
-        <aside className={`flex flex-col flex-shrink-0 h-full bg-bc border-r border-sc md:w-56 md:relative w-64 fixed top-[57px] left-0 z-40 transition-transform duration-300 ${leftOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-          <div className="px-4 pt-4 pb-2">
+        <aside className={`flex flex-col flex-shrink-0 bg-bc border-r border-sc md:w-56 md:relative w-64 fixed md:top-[57px] top-[105px] left-0 z-40 transition-transform duration-300 h-[calc(100vh-105px)] md:h-[calc(100vh-57px)] overflow-y-auto ${leftOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+          <div className="px-4 pt-4 pb-2 flex-shrink-0">
             <button onClick={() => navigate('/home')} className="text-gray-500 text-xs hover:text-white">← Projects</button>
           </div>
           <p className="text-gray-600 text-xs uppercase px-4 pb-3">Screens</p>
-          <div className="flex flex-col gap-3 px-3 pb-3">
+          <div className="flex flex-col gap-3 px-3 pb-6">
             {screens.map(screen => (
               <ScreenCard key={screen._id} screen={screen} isSelected={selectedScreenId === screen._id} onClick={() => handleSelectScreen(screen._id)} />
             ))}
           </div>
-          <div className="px-3 pb-4">
+          <div className="px-3 pb-8">
   {isCreating ? (
     <form onSubmit={handleCreateScreen} className="flex flex-col gap-2">
       <input
@@ -389,7 +389,7 @@ const isEditor = isOwner || projectData?.members?.some(collab =>
         </main>
 
         {rightOpen && <Overlay onClose={() => setRightOpen(false)} />}
-        <aside className={`flex-shrink-0 bg-bc border-l border-sc md:w-52 md:relative w-64 fixed top-[57px] right-0 z-40 transition-transform duration-300 ${rightOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
+        <aside className={`flex-shrink-0 bg-bc border-l border-sc md:w-52 md:relative w-64 fixed md:top-[57px] top-[105px] right-0 z-40 transition-transform duration-300 h-[calc(100vh-105px)] md:h-[calc(100vh-57px)] overflow-y-auto ${rightOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
           <RightSidebar
             selectedTool={selectedTool} onSelectTool={handleSelectTool}
             propertiesSlot={<PropertiesPanel element={selectedElement} onUpdate={isReadOnly ? () => {} : updateProps} onDelete={isReadOnly ? () => {} : deleteElement} />}
