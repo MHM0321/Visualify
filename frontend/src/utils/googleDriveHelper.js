@@ -79,11 +79,21 @@ export const openDrivePicker = async () => {
   return new Promise((resolve, reject) => {
     try { ensureConfigured(); } catch (e) { reject(e); return; }
 
+    let finished = false;
+    const timeout = setTimeout(() => {
+      if (finished) return;
+      finished = true;
+      reject('Google auth timed out (popup closed or blocked).');
+    }, 12000);
+
     const tokenClient = window.google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
       scope: SCOPES,
       callback: async (response) => {
-        if (response.error) return reject(response);
+        if (finished) return;
+        clearTimeout(timeout);
+        finished = true;
+        if (response?.error) return reject(response);
 
         const accessToken = response.access_token;
         await loadPicker();
@@ -132,64 +142,14 @@ export const openDrivePicker = async () => {
       },
     });
 
-    // If the user hasn't consented yet, 'none' fails. Start with 'none' for UX,
-    // then fall back to 'consent' when needed.
-    tokenClient.requestAccessToken({ prompt: 'none' });
+    // Interactive prompt avoids silent failures where callback never fires.
+    tokenClient.requestAccessToken({ prompt: 'consent' });
   });
 };
 
 // Optional helper (not exported) for callers that want a force-consent retry.
 export const openDrivePickerWithConsentFallback = async () => {
-  try {
-    return await openDrivePicker();
-  } catch (e) {
-    // If token isn't available silently, retry with consent.
-    const msg = typeof e === 'string' ? e : (e?.error || '');
-    if (msg && (msg.includes('consent') || msg.includes('interaction_required') || msg.includes('login_required'))) {
-      return new Promise((resolve, reject) => {
-        try { ensureConfigured(); } catch (err) { reject(err); return; }
-        const tokenClient = window.google.accounts.oauth2.initTokenClient({
-          client_id: CLIENT_ID,
-          scope: SCOPES,
-          callback: async (response) => {
-            if (response.error) return reject(response);
-            try {
-              const accessToken = response.access_token;
-              await loadPicker();
-              const jsonView = new window.google.picker.DocsView(window.google.picker.ViewId.DOCS)
-                .setIncludeFolders(false)
-                .setSelectFolderEnabled(false)
-                .setMimeTypes('application/json');
-              const picker = new window.google.picker.PickerBuilder()
-                .addView(jsonView)
-                .setOAuthToken(accessToken)
-                .setDeveloperKey(API_KEY)
-                .setCallback(async (data) => {
-                  if (data.action === window.google.picker.Action.PICKED) {
-                    const fileId = data.docs[0].id;
-                    try {
-                      const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-                        headers: { Authorization: `Bearer ${accessToken}` }
-                      });
-                      const text = await res.text();
-                      resolve(JSON.parse(text));
-                    } catch {
-                      reject('Failed to fetch/parse file');
-                    }
-                  } else if (data.action === window.google.picker.Action.CANCEL) {
-                    reject("Picker cancelled");
-                  }
-                })
-                .build();
-              picker.setVisible(true);
-            } catch (err) {
-              reject(err);
-            }
-          },
-        });
-        tokenClient.requestAccessToken({ prompt: 'consent' });
-      });
-    }
-    throw e;
-  }
+  // Kept for API compatibility with existing callers.
+  // `openDrivePicker` now always uses an interactive consent prompt + timeout.
+  return openDrivePicker();
 };
