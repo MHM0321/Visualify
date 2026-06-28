@@ -63,7 +63,7 @@ useEffect(() => {
 }, [projectId, userId]);
 
 const { viewers, canEdit, socketRef, newScreen, emitScreenCreated } = useSocket({ 
-  screenId: userRoleLoaded ? selectedScreenId : null, // ✅ wait for role before connecting
+  screenId: userRoleLoaded && selectedScreenId ? selectedScreenId : null, 
   userId, name: userName, role: userRole, projectId
 });
 
