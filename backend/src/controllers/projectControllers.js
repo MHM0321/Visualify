@@ -22,6 +22,15 @@ export const getProjectById = async(req, res) => {
     try {
         const project = await Project.findById(req.params.projectId);
         if (!project) return res.status(404).json({ message: "Project not found" });
+
+        //only owner or members can view
+        const userId = req.query.userId;
+        if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+        const isOwner = project.owner.toString() === userId;
+        const isMember = project.members.some(m => m.userId.toString() === userId);
+        if (!isOwner && !isMember) return res.status(403).json({ message: "Access denied" });
+
         res.status(200).json(project);
     } catch (error) {
         console.log("Error in getProjectById controller", error);

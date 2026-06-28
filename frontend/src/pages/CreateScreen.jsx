@@ -32,18 +32,41 @@ const ScreensPage = () => {
   const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(false);
 
+  // const [userRole, setUserRole] = useState('viewer');
+  // useEffect(() => {
+  //   const fetchRole = async () => {
+  //     try {
+  //       const res = await axios.get(`${API}/api/projects/role/${projectId}/${userId}`);
+  //       setUserRole(res.data.role);
+  //     } catch { setUserRole('viewer'); }
+  //   };
+  //   fetchRole();
+  // }, [projectId, userId]);
+
+  // const { viewers, canEdit, socketRef, newScreen, emitScreenCreated } = useSocket({ screenId: selectedScreenId, userId, name: userName, role: userRole });
+
   const [userRole, setUserRole] = useState('viewer');
-  useEffect(() => {
+const [userRoleLoaded, setUserRoleLoaded] = useState(false); // ✅ new
+
+useEffect(() => {
     const fetchRole = async () => {
       try {
         const res = await axios.get(`${API}/api/projects/role/${projectId}/${userId}`);
         setUserRole(res.data.role);
-      } catch { setUserRole('viewer'); }
+      } catch { 
+        setUserRole('viewer'); 
+      } finally {
+        setUserRoleLoaded(true); // ✅ always fires, even on error
+      }
     };
     fetchRole();
-  }, [projectId, userId]);
+}, [projectId, userId]);
 
-  const { viewers, canEdit, socketRef, newScreen, emitScreenCreated } = useSocket({ screenId: selectedScreenId, userId, name: userName, role: userRole });
+const { viewers, canEdit, socketRef, newScreen, emitScreenCreated } = useSocket({ 
+  screenId: userRoleLoaded ? selectedScreenId : null, // ✅ wait for role before connecting
+  userId, name: userName, role: userRole, projectId
+});
+
   const isReadOnly = !canEdit;
 
   const { elements, selectedId, selectedElement, setSelectedId, loadElements, addElement, addConnector, moveElement, updateProps, deleteElement } = useCanvas(selectedScreenId, isReadOnly, socketRef);
