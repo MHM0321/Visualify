@@ -1,1 +1,1 @@
-export const API = 'https://visualify-production.up.railway.app';
+export const API = 'https://visualify-qnrs.onrender.com';
