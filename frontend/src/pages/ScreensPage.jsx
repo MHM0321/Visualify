@@ -361,8 +361,8 @@ const isEditor = isOwner || projectData?.members?.some(collab =>
   ) : (
     <button 
       onClick={() => setIsCreating(true)}
-      disabled={isReadOnly}
-      className={`w-full bg-sc hover:opacity-80 rounded-xl py-3 text-white text-sm transition ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+      disabled={loading || !isEditor}
+      className={`w-full bg-sc hover:opacity-80 rounded-xl py-3 text-white text-sm transition ${loading || !isEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       + New Screen
     </button>
