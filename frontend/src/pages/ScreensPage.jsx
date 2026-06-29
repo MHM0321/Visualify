@@ -121,7 +121,7 @@ const isEditor = isOwner || projectData?.members?.some(collab =>
   useEffect(() => {
     const fetchScreens = async () => {
       try {
-        const res = await axios.get(`${API}/api/screens/${projectId}`);
+        const res = await axios.get(`${API}/api/screens/${projectId}?userId=${currentUserId}`);
         setScreens(res.data);
         if (res.data.length > 0 && !selectedScreenId) setSelectedScreenId(res.data[0]._id);
       } catch { setScreens([]); }
