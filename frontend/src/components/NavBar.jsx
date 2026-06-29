@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from 'react-router';
 
 // Added isReadOnly prop to control button visibility for viewers
 const NavBar = ({ extraLeft, extraRight, onExport, onImport, isReadOnly }) => {
@@ -7,6 +8,7 @@ const NavBar = ({ extraLeft, extraRight, onExport, onImport, isReadOnly }) => {
   const decoded = jwtDecode(token);
   const userName = decoded.name;
   const avatarUrl = decoded.avatarUrl ?? null;
+  const navigate = useNavigate();
   
   const [exportMenu, setExportMenu] = useState({ open: false, stage: 1, format: null });
   const [importOpen, setImportOpen] = useState(false);
@@ -86,24 +88,26 @@ const NavBar = ({ extraLeft, extraRight, onExport, onImport, isReadOnly }) => {
       </div>
 
       <div className='flex items-center gap-4'>
-        {extraRight}
-        <h3 className='text-white text-sm font-medium hidden sm:block'>{userName}</h3>
-        {avatarUrl ? (
-          <img
-            src={avatarUrl}
-            alt={userName || 'User'}
-            referrerPolicy="no-referrer"
-            className="w-10 h-10 rounded-full object-cover border border-sc shadow-inner"
-          />
-        ) : (
-          <button
-            className="w-10 h-10 rounded-full bg-pm border border-sc shadow-inner flex items-center justify-center text-white text-sm font-bold"
-            aria-label="User avatar"
-          >
-            {userName?.[0]?.toUpperCase() ?? '?'}
-          </button>
-        )}
+  {extraRight}
+  <button
+    onClick={() => navigate('/account')}
+    className="flex items-center gap-3 hover:opacity-80 transition"
+  >
+    <h3 className='text-white text-sm font-medium hidden sm:block'>{userName}</h3>
+    {avatarUrl ? (
+      <img
+        src={avatarUrl}
+        alt={userName || 'User'}
+        referrerPolicy="no-referrer"
+        className="w-10 h-10 rounded-full object-cover border border-sc shadow-inner"
+      />
+    ) : (
+      <div className="w-10 h-10 rounded-full bg-pm border border-sc shadow-inner flex items-center justify-center text-white text-sm font-bold">
+        {userName?.[0]?.toUpperCase() ?? '?'}
       </div>
+    )}
+  </button>
+</div>
     </div>
   );
 };

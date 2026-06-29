@@ -1,6 +1,8 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import Project from "../models/Project.js";
+import Screen from "../models/Screen.js";
 
 function normalizeEmail(email) {
     return String(email || "").trim().toLowerCase();
@@ -105,3 +107,58 @@ export const googleAuthSuccess = (req, res) => {
         res.status(500).json("Internal Server Error");
     }
 };
+
+export async function getUserById(req, res) {
+    try {
+        const user = await User.findById(req.params.id).select('-password');
+        if (!user) return res.status(404).json("User not found");
+        res.status(200).json(user);
+    } catch (error) {
+        console.log("Error in getUserById controller", error);
+        res.status(500).json("Internal Server Error");
+    }
+}
+
+export async function renameUser(req, res) {
+    try {
+        const { name } = req.body;
+        if (!name?.trim()) return res.status(400).json("Name required");
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            { name: name.trim() },
+            { new: true }
+        ).select('-password');
+        if (!user) return res.status(404).json("User not found");
+        // Return a fresh token with updated name
+        const token = jwt.sign(
+            { id: user._id, name: user.name, avatarUrl: user.avatarUrl ?? null },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+        res.status(200).json({ user, token });
+    } catch (error) {
+        console.log("Error in renameUser controller", error);
+        res.status(500).json("Internal Server Error");
+    }
+}
+
+export async function deleteUser(req, res) {
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        // Also delete their projects and screens
+        const projects = await Project.find({ owner: req.params.id });
+        for (const p of projects) {
+            await Screen.deleteMany({ projectId: p._id });
+        }
+        await Project.deleteMany({ owner: req.params.id });
+        // Remove them from other projects' members
+        await Project.updateMany(
+            { 'members.userId': req.params.id },
+            { $pull: { members: { userId: req.params.id } } }
+        );
+        res.status(200).json("Account deleted");
+    } catch (error) {
+        console.log("Error in deleteUser controller", error);
+        res.status(500).json("Internal Server Error");
+    }
+}

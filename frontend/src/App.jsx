@@ -7,6 +7,7 @@ import Signup from './pages/Signup'
 import ScreensPage from './pages/ScreensPage'
 import CreateScreen from './pages/CreateScreen'
 import ProtectedRoute from './components/ProtectedRoute'
+import AccountPage from './pages/AccountPage';
 import { useEffect } from 'react'
 
 const App = () => {
@@ -33,6 +34,7 @@ const App = () => {
         <Route path="/home" element={<ProtectedRoute><HomePage/></ProtectedRoute>}/>
         <Route path="/signup" element={<Signup/>}/>
         <Route path="/project/:projectId" element={<ProtectedRoute><ScreensPage/></ProtectedRoute>}/>
+        <Route path="/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
       </Routes>
     </div>
   )
