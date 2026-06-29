@@ -91,123 +91,102 @@ const ProjectCard = ({ project, currentUserId, onDelete, onRename, onDuplicate, 
   };
 
   return (
-    <div className="relative group">
-      <button
-        className={`w-full text-left bg-bc border-2 border-sc rounded-xl overflow-hidden hover:border-pm transition ${listView ? 'flex flex-row items-center' : 'grid grid-flow-row'}`}
-        style={{ '--accent': accent }}
-        onClick={() => navigate(`/project/${project._id}`)}
-      >
-        {/* Color accent bar */}
-        <div className="w-full h-1" style={{ backgroundColor: accent }} />
-
-        {/* Card body */}
-        <div className="px-3 pt-3 pb-3 flex flex-col gap-3">
-          {/* Project name */}
-          {renaming ? (
-            <input
-              autoFocus
-              type="text"
-              value={newName}
-              onChange={e => setNewName(e.target.value)}
-              onBlur={handleRename}
-              onKeyDown={e => { if (e.key === 'Enter') handleRename(e); if (e.key === 'Escape') { setRenaming(false); setNewName(project.name); } }}
-              onClick={e => e.stopPropagation()}
-              className="bg-bc border border-pm rounded-lg px-2 py-1 text-white text-sm focus:outline-none w-full"
-            />
-          ) : (
-            <h3 className="text-white font-medium text-sm truncate">{project.name}</h3>
-          )}
-
-          {/* Thumbnail placeholder */}
-          {!listView && <div className="w-full h-16 rounded-lg opacity-40" style={{ backgroundColor: accent }} />}
-
-          {/* Footer: avatars + time */}
-          <div className="flex items-center justify-between">
-            {/* Stacked member avatars */}
-            <div className="flex -space-x-2">
-  {allMembers.map((m, i) => (
-    <div
-      key={i}
-      className="relative flex-shrink-0"
-      style={{ zIndex: allMembers.length - i }}
-      title={m.user?.name ?? (m.isOwner ? 'Owner' : 'Member')}
+  <div className="relative group">
+    <button
+      className={`w-full text-left bg-bc border-2 border-sc rounded-xl overflow-hidden hover:border-pm transition ${listView ? 'flex flex-row items-center gap-4 px-4 py-3' : 'grid grid-flow-row'}`}
+      style={{ '--accent': accent }}
+      onClick={() => navigate(`/project/${project._id}`)}
     >
-      {m.user?.avatarUrl ? (
-        <img
-          src={m.user.avatarUrl}
-          alt={m.user.name}
-          referrerPolicy="no-referrer"
-          className="w-6 h-6 rounded-full border-2 border-bc object-cover"
-        />
+      {/* Accent — bar on top for grid, left border strip for list */}
+      {listView ? (
+        <div className="w-1 self-stretch rounded-full flex-shrink-0" style={{ backgroundColor: accent }} />
       ) : (
-        <div
-          className="w-6 h-6 rounded-full border-2 border-bc flex items-center justify-center text-white text-xs font-bold"
-          style={{ backgroundColor: ACCENT_COLORS[(i + 2) % ACCENT_COLORS.length] }}
-        >
-          {m.user?.name?.[0]?.toUpperCase() ?? '?'}
-        </div>
+        <div className="w-full h-1" style={{ backgroundColor: accent }} />
       )}
-    </div>
-  ))}
-  {project.members?.length > 3 && (
-    <div
-      className="w-6 h-6 rounded-full border-2 border-bc bg-sc flex items-center justify-center text-gray-400 text-xs"
-      style={{ zIndex: 0 }}
-    >
-      +{project.members.length - 3}
-    </div>
-  )}
-</div>
 
-            {/* Last edited */}
-            <span className="text-gray-600 text-xs">
-              {timeAgo(project.lastEditedAt || project.updatedAt)}
-            </span>
-          </div>
-        </div>
-      </button>
+      {/* Card body */}
+      <div className={`flex flex-col gap-3 ${listView ? 'flex-1 min-w-0' : 'px-3 pt-3 pb-3'}`}>
+        {/* Project name */}
+        {renaming ? (
+          <input
+            autoFocus
+            type="text"
+            value={newName}
+            onChange={e => setNewName(e.target.value)}
+            onBlur={handleRename}
+            onKeyDown={e => { if (e.key === 'Enter') handleRename(e); if (e.key === 'Escape') { setRenaming(false); setNewName(project.name); } }}
+            onClick={e => e.stopPropagation()}
+            className="bg-bc border border-pm rounded-lg px-2 py-1 text-white text-sm focus:outline-none w-full"
+          />
+        ) : (
+          <h3 className="text-white font-medium text-sm truncate">{project.name}</h3>
+        )}
 
-      {/* 3-dot menu button — shows on hover */}
-      {isOwner && (
-        <div className="absolute top-3 right-2 opacity-0 group-hover:opacity-100 transition z-10">
-          <button
-            onClick={handleMenuClick}
-            className="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-white hover:bg-sc transition"
-          >
-            ···
-          </button>
+        {/* Thumbnail — grid only */}
+        {!listView && <div className="w-full h-16 rounded-lg opacity-40" style={{ backgroundColor: accent }} />}
 
-          {menuOpen && (
-            <>
-              {/* Backdrop to close menu */}
-              <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setMenuOpen(false); }} />
-              <div className="absolute right-0 top-7 w-36 bg-[#1a1a1a] border border-sc rounded-xl shadow-2xl py-1 z-20 overflow-hidden">
-                <button
-                  onClick={(e) => { e.stopPropagation(); setRenaming(true); setMenuOpen(false); }}
-                  className="w-full text-left px-4 py-2 text-gray-200 hover:bg-sc text-sm"
-                >
-                  Rename
-                </button>
-                <button
-                  onClick={handleDuplicate}
-                  className="w-full text-left px-4 py-2 text-gray-200 hover:bg-sc text-sm"
-                >
-                  Duplicate
-                </button>
-                <div className="border-t border-sc my-1" />
-                <button
-                  onClick={handleDelete}
-                  className="w-full text-left px-4 py-2 text-red-400 hover:bg-sc text-sm"
-                >
-                  Delete
-                </button>
+        {/* Footer: avatars + time */}
+        <div className="flex items-center justify-between">
+          <div className="flex -space-x-2">
+            {allMembers.map((m, i) => (
+              <div
+                key={i}
+                className="relative flex-shrink-0"
+                style={{ zIndex: allMembers.length - i }}
+                title={m.user?.name ?? (m.isOwner ? 'Owner' : 'Member')}
+              >
+                {m.user?.avatarUrl ? (
+                  <img
+                    src={m.user.avatarUrl}
+                    alt={m.user.name}
+                    referrerPolicy="no-referrer"
+                    className="w-6 h-6 rounded-full border-2 border-bc object-cover"
+                  />
+                ) : (
+                  <div
+                    className="w-6 h-6 rounded-full border-2 border-bc flex items-center justify-center text-white text-xs font-bold"
+                    style={{ backgroundColor: ACCENT_COLORS[(i + 2) % ACCENT_COLORS.length] }}
+                  >
+                    {m.user?.name?.[0]?.toUpperCase() ?? '?'}
+                  </div>
+                )}
               </div>
-            </>
-          )}
+            ))}
+            {project.members?.length > 3 && (
+              <div className="w-6 h-6 rounded-full border-2 border-bc bg-sc flex items-center justify-center text-gray-400 text-xs" style={{ zIndex: 0 }}>
+                +{project.members.length - 3}
+              </div>
+            )}
+          </div>
+          <span className="text-gray-600 text-xs">{timeAgo(project.lastEditedAt || project.updatedAt)}</span>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    </button>
+
+    {/* 3-dot menu */}
+    {isOwner && (
+      <div className="absolute top-3 right-2 opacity-0 group-hover:opacity-100 transition z-10">
+        <button
+          onClick={handleMenuClick}
+          className="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-white hover:bg-sc transition"
+        >
+          ···
+        </button>
+        {menuOpen && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setMenuOpen(false); }} />
+            <div className="absolute right-0 top-7 w-36 bg-[#1a1a1a] border border-sc rounded-xl shadow-2xl py-1 z-20 overflow-hidden">
+              <button onClick={(e) => { e.stopPropagation(); setRenaming(true); setMenuOpen(false); }} className="w-full text-left px-4 py-2 text-gray-200 hover:bg-sc text-sm">Rename</button>
+              <button onClick={handleDuplicate} className="w-full text-left px-4 py-2 text-gray-200 hover:bg-sc text-sm">Duplicate</button>
+              <div className="border-t border-sc my-1" />
+              <button onClick={handleDelete} className="w-full text-left px-4 py-2 text-red-400 hover:bg-sc text-sm">Delete</button>
+            </div>
+          </>
+        )}
+      </div>
+    )}
+  </div>
+);
 };
 
 export default ProjectCard;
