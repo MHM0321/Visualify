@@ -1,3 +1,7 @@
+import { useTheme } from './hooks/useTheme.js';
+const { initTheme } = useTheme();
+initTheme();
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import {BrowserRouter} from "react-router"

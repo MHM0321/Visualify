@@ -4,12 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        pm: "#4a5878",
-        sc: "#3D3D3D",
-        bc: "#2c2c2c",
+        pm: "var(--color-pm)",
+        sc: "var(--color-sc)",
+        bc: "var(--color-bc)",
       },
     },
   },
   plugins: [],
 }
-

@@ -2,11 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Theme CSS Variables ─────────────────────────────── */
+:root {
+  --color-pm: #4a5878;
+  --color-sc: #3D3D3D;
+  --color-bc: #2c2c2c;
+}
+
+[data-theme="obsidian"] {
+  --color-pm: #6366f1;
+  --color-sc: #27272a;
+  --color-bc: #18181b;
+}
+
+[data-theme="slate"] {
+  --color-pm: #3b82f6;
+  --color-sc: #334155;
+  --color-bc: #0f172a;
+}
+
+[data-theme="emerald"] {
+  --color-pm: #10b981;
+  --color-sc: #374151;
+  --color-bc: #111827;
+}
+
+[data-theme="rose"] {
+  --color-pm: #f43f5e;
+  --color-sc: #3f3f46;
+  --color-bc: #1c1c1e;
+}
+
+[data-theme="sandstone"] {
+  --color-pm: #d97706;
+  --color-sc: #44403c;
+  --color-bc: #292524;
+}
+
+[data-theme="pure-dark"] {
+  --color-pm: #ffffff;
+  --color-sc: #2a2a2a;
+  --color-bc: #141414;
+}
+
+[data-theme="arctic"] {
+  --color-pm: #0ea5e9;
+  --color-sc: #cbd5e1;
+  --color-bc: #f0f4f8;
+}
+
+[data-theme="paper"] {
+  --color-pm: #8b5cf6;
+  --color-sc: #e5e7eb;
+  --color-bc: #fafafa;
+}
+
+/* ── Autofill fix ────────────────────────────────────── */
 @layer base {
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0px 1000px #3D3D3D inset;
+    -webkit-box-shadow: 0 0 0px 1000px var(--color-sc) inset;
     -webkit-text-fill-color: white;
     transition: background-color 5000s ease-in-out 0s;
   }
