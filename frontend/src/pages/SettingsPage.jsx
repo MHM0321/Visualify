@@ -197,7 +197,7 @@ const SettingsPage = () => {
           <h2 className="text-tx font-semibold text-sm">About</h2>
           <div className="flex items-center justify-between">
             <span className="text-gray-500 text-sm">Version</span>
-            <span className="text-gray-400 text-sm">1.0.0</span>
+            <span className="text-gray-400 text-sm">3.17.5</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-gray-500 text-sm">Built with</span>
@@ -218,7 +218,7 @@ const SettingsPage = () => {
                 rel="noreferrer"
                 className="flex-1 text-center border border-sc text-tx rounded-xl py-2.5 text-sm hover:bg-sc transition"
               >
-                🐙 GitHub Profile
+                🐛 GitHub Profile
               </a>
             </div>
           </div>
