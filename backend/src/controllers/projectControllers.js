@@ -1,5 +1,6 @@
 import Project from "../models/Project.js";
 import User from "../models/User.js";
+import Screen from "../models/Screen.js";
 
 export const getUserProjects = async(req, res) => {
     try {
@@ -86,6 +87,62 @@ export async function getProjectRole(req, res) {
         res.status(200).json({ role });
     } catch (error) {
         console.log("Error in getProjectRole controller", error);
+        res.status(500).json("Internal Server Error");
+    }
+}
+
+export async function renameProject(req, res) {
+    try {
+        const { name } = req.body;
+        if (!name?.trim()) return res.status(400).json({ message: "Name required" });
+        const project = await Project.findByIdAndUpdate(
+            req.params.id,
+            { name: name.trim() },
+            { new: true }
+        );
+        if (!project) return res.status(404).json({ message: "Project not found" });
+        res.status(200).json(project);
+    } catch (error) {
+        console.log("Error in renameProject controller", error);
+        res.status(500).json("Internal Server Error");
+    }
+}
+
+export async function deleteProject(req, res) {
+    try {
+        const project = await Project.findByIdAndDelete(req.params.id);
+        if (!project) return res.status(404).json({ message: "Project not found" });
+        // Also delete all screens belonging to this project
+        await Screen.deleteMany({ projectId: req.params.id });
+        res.status(200).json({ message: "Project deleted" });
+    } catch (error) {
+        console.log("Error in deleteProject controller", error);
+        res.status(500).json("Internal Server Error");
+    }
+}
+
+export async function duplicateProject(req, res) {
+    try {
+        const original = await Project.findById(req.params.id);
+        if (!original) return res.status(404).json({ message: "Project not found" });
+        const copy = new Project({
+            name: `${original.name} (Copy)`,
+            owner: original.owner,
+            members: original.members,
+        });
+        await copy.save();
+        // Duplicate all screens too
+        const screens = await Screen.find({ projectId: original._id });
+        const copiedScreens = screens.map(s => ({
+            projectId: copy._id,
+            name: s.name,
+            order: s.order,
+            content: s.content,
+        }));
+        if (copiedScreens.length > 0) await Screen.insertMany(copiedScreens);
+        res.status(201).json(copy);
+    } catch (error) {
+        console.log("Error in duplicateProject controller", error);
         res.status(500).json("Internal Server Error");
     }
 }

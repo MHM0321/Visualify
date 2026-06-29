@@ -4,54 +4,68 @@ import { useEffect, useState } from 'react';
 import NavBar from '../components/NavBar';
 import ProjectCard from '../components/ProjectCard';
 import { useNavigate } from "react-router";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { API } from '../config';
 
 const HomePage = () => {
-  
   const navigate = useNavigate();
-  
   const token = localStorage.getItem("token");
   const decoded = jwtDecode(token);
   const userId = decoded.id || decoded.sub;
-  
+
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    const fetchProjects = async() => {
+    const fetchProjects = async () => {
       try {
         const res = await axios.get(`${API}/api/projects/${userId}`);
         setProjects(res.data);
       } catch (error) {
-        console.log("Error Fetching Notes !");
+        console.log("Error fetching projects");
       }
     };
-
     fetchProjects();
   }, []);
-  
-  
+
+  const handleDelete = (projectId) => {
+    setProjects(prev => prev.filter(p => p._id !== projectId));
+  };
+
+  const handleRename = (projectId, newName) => {
+    setProjects(prev => prev.map(p => p._id === projectId ? { ...p, name: newName } : p));
+  };
+
+  const handleDuplicate = (newProject) => {
+    setProjects(prev => [newProject, ...prev]);
+  };
+
   return (
     <div className="bg-bc min-h-screen">
-
-      <NavBar/>
-      
-      <div className='p-10'>
-        <div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-10'>
+      <NavBar />
+      <div className="p-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {projects.map(project => (
-            <ProjectCard key={project._id} project={project}/>
+            <ProjectCard
+              key={project._id}
+              project={project}
+              currentUserId={userId}
+              onDelete={handleDelete}
+              onRename={handleRename}
+              onDuplicate={handleDuplicate}
+            />
           ))}
-
           <div className="flex justify-center md:justify-start">
-            <button className="flex items-center justify-center bg-sc rounded-xl h-20 w-20 text-white text-3xl pb-2" onClick={() => navigate("/create-project")}>+</button>
+            <button
+              className="flex items-center justify-center bg-sc rounded-xl h-20 w-20 text-white text-3xl pb-2 hover:opacity-80 transition"
+              onClick={() => navigate("/create-project")}
+            >
+              +
+            </button>
           </div>
         </div>
-
       </div>
     </div>
   );
-
-
 };
 
-export default HomePage
+export default HomePage;
