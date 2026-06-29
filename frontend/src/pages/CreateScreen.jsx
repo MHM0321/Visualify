@@ -67,6 +67,7 @@ const { viewers, canEdit, socketRef, newScreen, emitScreenCreated } = useSocket(
   userId, name: userName, role: userRole, projectId
 });
 
+  const isLoading = !userRoleLoaded || canEdit === null;
   const isReadOnly = !canEdit;
 
   const { elements, selectedId, selectedElement, setSelectedId, loadElements, addElement, addConnector, moveElement, updateProps, deleteElement } = useCanvas(selectedScreenId, isReadOnly, socketRef);
@@ -206,39 +207,47 @@ const { viewers, canEdit, socketRef, newScreen, emitScreenCreated } = useSocket(
 
         {/* Canvas — always takes full remaining space */}
         <main className="flex-1 overflow-hidden relative min-w-0">
-          {isReadOnly && (
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-bc border border-sc rounded-full px-4 py-1.5 text-gray-400 text-xs flex items-center gap-2 pointer-events-none">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-              View only
-            </div>
-          )}
-          {selectedScreenId ? (
-            <Canvas
-              elements={elements}
-              selectedId={selectedId}
-              selectedTool={selectedTool}
-              onPlace={handlePlace}
-              onSelect={setSelectedId}
-              onMove={isReadOnly ? () => {} : moveElement}
-              onConnectorComplete={handleConnectorComplete}
-              onPenStroke={handlePenStroke}
-              readOnly={isReadOnly}
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <p className="text-gray-600 text-sm">No screens yet</p>
-                <button onClick={() => navigate(`/create-screen/${projectId}`, { state: { fromSocket: true } })}
-                  className="mt-4 bg-sc text-white rounded-xl px-6 py-3 text-sm hover:opacity-80 transition">
-                  + Create your first screen
-                </button>
-              </div>
-            </div>
-          )}
-        </main>
+  {isLoading ? (
+    <div className="flex items-center justify-center h-full">
+      <p className="text-gray-500 text-sm">Loading...</p>
+    </div>
+  ) : (
+    <>
+      {isReadOnly && (
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-bc border border-sc rounded-full px-4 py-1.5 text-gray-400 text-xs flex items-center gap-2 pointer-events-none">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          View only
+        </div>
+      )}
+      {selectedScreenId ? (
+        <Canvas
+          elements={elements}
+          selectedId={selectedId}
+          selectedTool={selectedTool}
+          onPlace={handlePlace}
+          onSelect={setSelectedId}
+          onMove={isReadOnly ? () => {} : moveElement}
+          onConnectorComplete={handleConnectorComplete}
+          onPenStroke={handlePenStroke}
+          readOnly={isReadOnly}
+        />
+      ) : (
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <p className="text-gray-600 text-sm">No screens yet</p>
+            <button onClick={() => navigate(`/create-screen/${projectId}`, { state: { fromSocket: true } })}
+              className="mt-4 bg-sc text-white rounded-xl px-6 py-3 text-sm hover:opacity-80 transition">
+              + Create your first screen
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  )}
+</main>
 
         {/* Right sidebar — desktop: always visible, mobile: slide-in drawer */}
         {rightOpen && <Overlay onClose={() => setRightOpen(false)} />}
