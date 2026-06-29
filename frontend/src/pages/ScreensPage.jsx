@@ -79,7 +79,7 @@ const isEditor = isOwner || projectData?.members?.some(collab =>
 
   // Final editability: viewers are always read-only, editors need screen lock.
   const isReadOnly = loading || !isEditor || !canEdit;
-  const lockHeldByOtherEditor = !loading && isEditor && !canEdit;
+  const lockHeldByOtherEditor = !loading && isEditor && !canEdit && selectedScreenId !== null;
   const viewerRoleOnly = !loading && !isEditor;
 
   let statusPill = null;
@@ -371,6 +371,12 @@ const isEditor = isOwner || projectData?.members?.some(collab =>
         </aside>
 
         <main className="flex-1 overflow-hidden relative min-w-0">
+  {loading ? (
+    <div className="flex flex-col items-center justify-center h-full gap-3">
+      <div className="w-6 h-6 border-2 border-sc border-t-pm rounded-full animate-spin" />
+      <p className="text-gray-600 text-xs">Loading project...</p>
+    </div>
+  ) : (<>
           {statusPill && (
             <div className={`absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-bc border rounded-full px-4 py-1.5 text-xs flex items-center gap-2 ${statusPill.className}`}>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -386,6 +392,7 @@ const isEditor = isOwner || projectData?.members?.some(collab =>
           ) : (
             <div className="flex items-center justify-center h-full text-gray-600">No screen selected</div>
           )}
+          </>)}
         </main>
 
         {rightOpen && <Overlay onClose={() => setRightOpen(false)} />}
