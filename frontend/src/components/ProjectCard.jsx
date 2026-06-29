@@ -26,7 +26,7 @@ function timeAgo(date) {
   }
 }
 
-const ProjectCard = ({ project, currentUserId, onDelete, onRename, onDuplicate }) => {
+const ProjectCard = ({ project, currentUserId, onDelete, onRename, onDuplicate, listView = false }) => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [renaming, setRenaming] = useState(false);
@@ -93,7 +93,7 @@ const ProjectCard = ({ project, currentUserId, onDelete, onRename, onDuplicate }
   return (
     <div className="relative group">
       <button
-        className="w-full text-left grid grid-flow-row bg-bc border-2 border-sc rounded-xl overflow-hidden hover:border-pm transition"
+        className={`w-full text-left bg-bc border-2 border-sc rounded-xl overflow-hidden hover:border-pm transition ${listView ? 'flex flex-row items-center' : 'grid grid-flow-row'}`}
         style={{ '--accent': accent }}
         onClick={() => navigate(`/project/${project._id}`)}
       >
@@ -119,7 +119,7 @@ const ProjectCard = ({ project, currentUserId, onDelete, onRename, onDuplicate }
           )}
 
           {/* Thumbnail placeholder */}
-          <div className="w-full h-16 rounded-lg opacity-40" style={{ backgroundColor: accent }} />
+          {!listView && <div className="w-full h-16 rounded-lg opacity-40" style={{ backgroundColor: accent }} />}
 
           {/* Footer: avatars + time */}
           <div className="flex items-center justify-between">
