@@ -99,7 +99,7 @@ const AccountPage = () => {
       <div className="max-w-xl mx-auto px-6 py-12 flex flex-col gap-8">
 
         {/* Back */}
-        <button onClick={() => navigate('/home')} className="text-gray-500 text-sm hover:text-white transition self-start">
+        <button onClick={() => navigate('/home')} className="text-gray-500 text-sm hover:text-tx transition self-start">
           ← Back
         </button>
 
@@ -119,7 +119,7 @@ const AccountPage = () => {
               </div>
             )}
             <div className="flex flex-col gap-1">
-              <h1 className="text-white text-xl font-bold">{user?.name}</h1>
+              <h1 className="text-tx text-xl font-bold">{user?.name}</h1>
               <p className="text-gray-500 text-sm">{user?.email}</p>
               {isGoogleUser && (
                 <div className="flex items-center gap-1.5 mt-1">
@@ -141,15 +141,15 @@ const AccountPage = () => {
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') handleRename(); if (e.key === 'Escape') setRenaming(false); }}
-                  className="flex-1 bg-bc border border-pm rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none"
+                  className="flex-1 bg-bc border border-pm rounded-xl px-4 py-2.5 text-tx text-sm focus:outline-none"
                 />
                 <button onClick={handleRename} className="bg-pm text-white rounded-xl px-4 py-2.5 text-sm hover:opacity-90 transition">Save</button>
-                <button onClick={() => setRenaming(false)} className="border border-sc text-gray-400 rounded-xl px-4 py-2.5 text-sm hover:text-white transition">Cancel</button>
+                <button onClick={() => setRenaming(false)} className="border border-sc text-gray-400 rounded-xl px-4 py-2.5 text-sm hover:text-tx transition">Cancel</button>
               </div>
             ) : (
               <div className="flex items-center justify-between bg-bc border border-sc rounded-xl px-4 py-2.5">
-                <span className="text-white text-sm">{user?.name}</span>
-                <button onClick={() => setRenaming(true)} className="text-gray-500 text-xs hover:text-white transition">Edit</button>
+                <span className="text-tx text-sm">{user?.name}</span>
+                <button onClick={() => setRenaming(true)} className="text-gray-500 text-xs hover:text-tx transition">Edit</button>
               </div>
             )}
           </div>
@@ -165,7 +165,7 @@ const AccountPage = () => {
               { label: 'Total Screens', value: stats.screens },
             ].map(s => (
               <div key={s.label} className="flex flex-col items-center gap-1 bg-sc bg-opacity-30 rounded-xl py-4">
-                <span className="text-white text-2xl font-bold">{s.value}</span>
+                <span className="text-tx text-2xl font-bold">{s.value}</span>
                 <span className="text-gray-500 text-xs text-center">{s.label}</span>
               </div>
             ))}
@@ -177,7 +177,7 @@ const AccountPage = () => {
           <h2 className="text-gray-400 text-xs uppercase tracking-widest mb-2">Account</h2>
           <button
             onClick={handleLogout}
-            className="w-full border border-sc text-white rounded-xl py-3 text-sm hover:bg-sc transition"
+            className="w-full border border-sc text-tx rounded-xl py-3 text-sm hover:bg-sc transition"
           >
             Log Out
           </button>

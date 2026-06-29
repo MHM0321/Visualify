@@ -33,7 +33,7 @@ const Signup = () => {
     <div className="bg-bc min-h-screen flex items-center justify-center">
       <div className="border border-sc rounded-2xl p-10 w-full max-w-md flex flex-col gap-6">
 
-        <h1 className="text-white text-3xl font-bold text-center">Create Account</h1>
+        <h1 className="text-tx text-3xl font-bold text-center">Create Account</h1>
         <p className="text-gray-400 text-center text-sm">Join and start building</p>
 
         <div className="flex flex-col gap-2">
@@ -43,7 +43,7 @@ const Signup = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name"
-            className="bg-transparent border border-sc rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-pm"
+            className="bg-transparent border border-sc rounded-xl px-4 py-3 text-tx placeholder-gray-500 focus:outline-none focus:border-pm"
           />
         </div>
 
@@ -54,7 +54,7 @@ const Signup = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="bg-transparent border border-sc rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-pm"
+            className="bg-transparent border border-sc rounded-xl px-4 py-3 text-tx placeholder-gray-500 focus:outline-none focus:border-pm"
           />
         </div>
 
@@ -65,7 +65,7 @@ const Signup = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="bg-transparent border border-sc rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-pm"
+            className="bg-transparent border border-sc rounded-xl px-4 py-3 text-tx placeholder-gray-500 focus:outline-none focus:border-pm"
           />
         </div>
 

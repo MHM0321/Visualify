@@ -32,11 +32,11 @@ const CreateScreen = () => {
       <div className="border border-sc rounded-2xl p-10 w-full max-w-md flex flex-col gap-6">
         <button
           onClick={() => navigate(`/project/${projectId}`)}
-          className="text-gray-500 text-sm hover:text-white transition"
+          className="text-gray-500 text-sm hover:text-tx transition"
         >
           ← Back
         </button>
-        <h1 className="text-white text-3xl font-bold">New Screen</h1>
+        <h1 className="text-tx text-3xl font-bold">New Screen</h1>
 
         <div className="flex flex-col gap-2">
           <label className="text-gray-300 text-sm">Screen Name</label>
@@ -45,7 +45,7 @@ const CreateScreen = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Home Screen"
-            className="bg-bc border border-sc rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-pm"
+            className="bg-bc border border-sc rounded-xl px-4 py-3 text-tx placeholder-gray-500 focus:outline-none focus:border-pm"
           />
         </div>
 

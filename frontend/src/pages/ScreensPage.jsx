@@ -323,7 +323,7 @@ const isEditor = isOwner || projectData?.members?.some(collab =>
         {leftOpen && <Overlay onClose={() => setLeftOpen(false)} />}
         <aside className={`flex flex-col flex-shrink-0 bg-bc border-r border-sc md:w-56 md:relative w-64 fixed md:top-[57px] top-[105px] left-0 z-40 transition-transform duration-300 h-[calc(100vh-105px)] md:h-[calc(100vh-57px)] overflow-y-auto ${leftOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
           <div className="px-4 pt-4 pb-2 flex-shrink-0">
-            <button onClick={() => navigate('/home')} className="text-gray-500 text-xs hover:text-white">← Projects</button>
+            <button onClick={() => navigate('/home')} className="text-gray-500 text-xs hover:text-tx">← Projects</button>
           </div>
           <p className="text-gray-600 text-xs uppercase px-4 pb-3">Screens</p>
           <div className="flex flex-col gap-3 px-3 pb-6">
@@ -340,12 +340,12 @@ const isEditor = isOwner || projectData?.members?.some(collab =>
         placeholder="Enter screen name..."
         value={newScreenName}
         onChange={(e) => setNewScreenName(e.target.value)}
-        className="bg-bc border border-sc rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-pm"
+        className="bg-bc border border-sc rounded-xl px-3 py-2 text-tx text-sm focus:outline-none focus:border-pm"
       />
       <div className="flex gap-2">
         <button 
           type="submit" 
-          className="flex-1 bg-sc text-white text-xs py-2 rounded-lg hover:opacity-80"
+          className="flex-1 bg-sc text-tx text-xs py-2 rounded-lg hover:opacity-80"
         >
           Create
         </button>
@@ -362,7 +362,7 @@ const isEditor = isOwner || projectData?.members?.some(collab =>
     <button 
       onClick={() => setIsCreating(true)}
       disabled={loading || !isEditor}
-      className={`w-full bg-sc hover:opacity-80 rounded-xl py-3 text-white text-sm transition ${loading || !isEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
+      className={`w-full bg-sc hover:opacity-80 rounded-xl py-3 text-tx text-sm transition ${loading || !isEditor ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       + New Screen
     </button>

@@ -38,7 +38,7 @@ const Login = () => {
     <div className="bg-bc min-h-screen flex items-center justify-center">
       <div className="border border-sc rounded-2xl p-10 w-full max-w-md flex flex-col gap-6">
 
-        <h1 className="text-white text-3xl font-bold text-center">Welcome Back</h1>
+        <h1 className="text-tx text-3xl font-bold text-center">Welcome Back</h1>
         <p className="text-gray-400 text-center text-sm">Log in to your account</p>
 
         <div className="flex flex-col gap-2">
@@ -48,7 +48,7 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="bg-bc border border-sc rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-sc"
+            className="bg-bc border border-sc rounded-xl px-4 py-3 text-tx placeholder-gray-500 focus:outline-none focus:border-sc"
           />
         </div>
 
@@ -59,7 +59,7 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="bg-bc border border-sc rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-sc"
+            className="bg-bc border border-sc rounded-xl px-4 py-3 text-tx placeholder-gray-500 focus:outline-none focus:border-sc"
           />
         </div>
 

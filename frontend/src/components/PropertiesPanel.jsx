@@ -13,7 +13,7 @@ const Field = ({ label, children }) => (
 const NumberInput = ({ value, onChange, min, max }) => (
   <input type="number" value={value ?? ''} min={min} max={max}
     onChange={e => onChange(Number(e.target.value))}
-    className="bg-bc border border-sc rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-pm w-full" />
+    className="bg-bc border border-sc rounded-lg px-2 py-1.5 text-tx text-sm focus:outline-none focus:border-pm w-full" />
 );
 
 const ColorInput = ({ value, onChange }) => (
@@ -24,13 +24,13 @@ const ColorInput = ({ value, onChange }) => (
       className="w-7 h-7 rounded cursor-pointer border-0 bg-transparent flex-shrink-0" />
     <input type="text" value={value ?? ''}
       onChange={e => onChange(e.target.value)}
-      className="bg-bc border border-sc rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-pm flex-1 min-w-0" />
+      className="bg-bc border border-sc rounded-lg px-2 py-1.5 text-tx text-sm focus:outline-none focus:border-pm flex-1 min-w-0" />
   </div>
 );
 
 const SelectInput = ({ value, onChange, options }) => (
   <select value={value ?? ''} onChange={e => onChange(e.target.value)}
-    className="bg-bc border border-sc rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-pm w-full">
+    className="bg-bc border border-sc rounded-lg px-2 py-1.5 text-tx text-sm focus:outline-none focus:border-pm w-full">
     {options.map(o => (
       <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>
     ))}
@@ -105,7 +105,7 @@ const PropertiesPanel = ({ element, onUpdate, onDelete }) => {
         <Field label="Image">
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
           <button onClick={() => fileInputRef.current?.click()}
-            className="w-full bg-sc hover:opacity-80 transition text-white text-sm rounded-lg py-2">
+            className="w-full bg-sc hover:opacity-80 transition text-tx text-sm rounded-lg py-2">
             {p.imageData ? 'Replace image' : 'Upload image'}
           </button>
           {p.imageData && (
@@ -127,7 +127,7 @@ const PropertiesPanel = ({ element, onUpdate, onDelete }) => {
       {isText && (<>
         <Field label="Text">
           <textarea value={p.text ?? ''} onChange={e => onUpdate(element.id, { text: e.target.value })}
-            rows={2} className="bg-bc border border-sc rounded-lg px-2 py-1.5 text-white text-sm focus:outline-none focus:border-pm w-full resize-none" />
+            rows={2} className="bg-bc border border-sc rounded-lg px-2 py-1.5 text-tx text-sm focus:outline-none focus:border-pm w-full resize-none" />
         </Field>
         <div className="grid grid-cols-2 gap-2">
           <Field label="Width"><NumberInput value={p.width} onChange={set('width')} min={20} /></Field>

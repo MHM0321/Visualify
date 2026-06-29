@@ -74,7 +74,7 @@ const NavBar = ({ extraLeft, extraRight, onExport, onImport, isReadOnly }) => {
                   ) : (
                     <>
                       <div className="px-3 py-1 text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                        <button onClick={() => setExportMenu({...exportMenu, stage: 1})} className="hover:text-white">←</button> Save to:
+                        <button onClick={() => setExportMenu({...exportMenu, stage: 1})} className="hover:text-tx">←</button> Save to:
                       </div>
                       <button onClick={() => onExport(exportMenu.format, 'local')} className="w-full text-left px-4 py-2 text-gray-200 hover:bg-sc text-sm">Local Device</button>
                       <button onClick={() => onExport(exportMenu.format, 'drive')} className="w-full text-left px-4 py-2 text-gray-200 hover:bg-sc text-sm">Google Drive</button>
@@ -89,7 +89,7 @@ const NavBar = ({ extraLeft, extraRight, onExport, onImport, isReadOnly }) => {
               <div className="relative">
                 <button 
                   onClick={() => setImportOpen(!importOpen)}
-                  className="border border-sc text-gray-400 hover:text-white hover:border-gray-500 px-4 py-2 rounded-lg text-sm transition-all flex items-center gap-2"
+                  className="border border-sc text-gray-400 hover:text-tx hover:border-gray-500 px-4 py-2 rounded-lg text-sm transition-all flex items-center gap-2"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                   Import

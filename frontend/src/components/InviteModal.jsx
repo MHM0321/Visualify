@@ -53,25 +53,25 @@ const InviteModal = ({ projectId, onClose }) => {
       {/* Modal */}
       <div className="relative bg-bc border border-sc rounded-2xl p-8 w-full max-w-md flex flex-col gap-5 z-10">
         <div className="flex items-center justify-between">
-          <h2 className="text-white text-xl font-bold">Invite Members</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-white text-xl transition">×</button>
+          <h2 className="text-tx text-xl font-bold">Invite Members</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-tx text-xl transition">×</button>
         </div>
 
         <input type="text" value={searchName} onChange={e => setSearchName(e.target.value)}
           placeholder="Member name"
-          className="bg-bc border border-sc rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-pm" />
+          className="bg-bc border border-sc rounded-xl px-4 py-3 text-tx placeholder-gray-500 focus:outline-none focus:border-pm" />
         <input type="email" value={searchEmail} onChange={e => setSearchEmail(e.target.value)}
           placeholder="Member email"
-          className="bg-bc border border-sc rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-pm" />
+          className="bg-bc border border-sc rounded-xl px-4 py-3 text-tx placeholder-gray-500 focus:outline-none focus:border-pm" />
 
         <div className="flex gap-2">
           <select value={searchRole} onChange={e => setSearchRole(e.target.value)}
-            className="bg-bc border border-sc rounded-xl px-3 py-3 text-white focus:outline-none flex-1">
+            className="bg-bc border border-sc rounded-xl px-3 py-3 text-tx focus:outline-none flex-1">
             <option value="viewer">Viewer</option>
             <option value="editor">Editor</option>
           </select>
           <button onClick={handleAdd} disabled={searching}
-            className="bg-sc text-white rounded-xl px-5 py-3 font-semibold hover:opacity-80 transition disabled:opacity-50">
+            className="bg-sc text-tx rounded-xl px-5 py-3 font-semibold hover:opacity-80 transition disabled:opacity-50">
             {searching ? '...' : 'Add'}
           </button>
         </div>
@@ -81,13 +81,13 @@ const InviteModal = ({ projectId, onClose }) => {
             {added.map(m => (
               <div key={m.email} className="flex items-center justify-between bg-sc bg-opacity-30 rounded-xl px-4 py-2">
                 <div>
-                  <p className="text-white text-sm font-medium">{m.name}</p>
+                  <p className="text-tx text-sm font-medium">{m.name}</p>
                   <p className="text-gray-500 text-xs">{m.email}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <select value={m.role}
                     onChange={e => setAdded(prev => prev.map(x => x.email === m.email ? { ...x, role: e.target.value } : x))}
-                    className="bg-bc border border-sc rounded-lg px-2 py-1 text-white text-xs focus:outline-none">
+                    className="bg-bc border border-sc rounded-lg px-2 py-1 text-tx text-xs focus:outline-none">
                     <option value="viewer">Viewer</option>
                     <option value="editor">Editor</option>
                   </select>
