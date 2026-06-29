@@ -5,13 +5,7 @@ import Screen from "../models/Screen.js";
 export const getUserProjects = async(req, res) => {
     try {
         const userId = req.params.id;
-        // Include both owned projects and projects where the user is an invited member.
-        const projects = await Project.find({
-            $or: [
-                { owner: userId },
-                { 'members.userId': userId },
-            ],
-        }).sort({createdAt:-1});
+        const projects = await Project.find({$or: [{ owner: userId },{ 'members.userId': userId },],}).populate('owner', 'name avatarUrl').populate('members.userId', 'name avatarUrl').sort({createdAt:-1});
         res.status(200).json(projects);
     } catch (error) {
         console.log("Error in getUserProjects controller", error);

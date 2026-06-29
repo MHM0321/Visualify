@@ -39,8 +39,8 @@ const ProjectCard = ({ project, currentUserId, onDelete, onRename, onDuplicate }
 
   // Stacked members: owner + up to 3 members
   const allMembers = [
-    { userId: project.owner, isOwner: true },
-    ...(project.members || []).slice(0, 3),
+    { user: project.owner, isOwner: true },
+    ...(project.members || []).slice(0, 3).map(m => ({ user: m.userId, isOwner: false })),
   ];
 
   const handleMenuClick = (e) => {
@@ -125,22 +125,39 @@ const ProjectCard = ({ project, currentUserId, onDelete, onRename, onDuplicate }
           <div className="flex items-center justify-between">
             {/* Stacked member avatars */}
             <div className="flex -space-x-2">
-              {allMembers.map((m, i) => (
-                <div
-                  key={i}
-                  className="w-6 h-6 rounded-full border-2 border-bc flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                  style={{ backgroundColor: ACCENT_COLORS[(i + 2) % ACCENT_COLORS.length], zIndex: allMembers.length - i }}
-                  title={m.isOwner ? 'Owner' : `Member`}
-                >
-                  {m.isOwner ? '★' : '•'}
-                </div>
-              ))}
-              {project.members?.length > 3 && (
-                <div className="w-6 h-6 rounded-full border-2 border-bc bg-sc flex items-center justify-center text-gray-400 text-xs">
-                  +{project.members.length - 3}
-                </div>
-              )}
-            </div>
+  {allMembers.map((m, i) => (
+    <div
+      key={i}
+      className="relative flex-shrink-0"
+      style={{ zIndex: allMembers.length - i }}
+      title={m.user?.name ?? (m.isOwner ? 'Owner' : 'Member')}
+    >
+      {m.user?.avatarUrl ? (
+        <img
+          src={m.user.avatarUrl}
+          alt={m.user.name}
+          referrerPolicy="no-referrer"
+          className="w-6 h-6 rounded-full border-2 border-bc object-cover"
+        />
+      ) : (
+        <div
+          className="w-6 h-6 rounded-full border-2 border-bc flex items-center justify-center text-white text-xs font-bold"
+          style={{ backgroundColor: ACCENT_COLORS[(i + 2) % ACCENT_COLORS.length] }}
+        >
+          {m.user?.name?.[0]?.toUpperCase() ?? '?'}
+        </div>
+      )}
+    </div>
+  ))}
+  {project.members?.length > 3 && (
+    <div
+      className="w-6 h-6 rounded-full border-2 border-bc bg-sc flex items-center justify-center text-gray-400 text-xs"
+      style={{ zIndex: 0 }}
+    >
+      +{project.members.length - 3}
+    </div>
+  )}
+</div>
 
             {/* Last edited */}
             <span className="text-gray-600 text-xs">
