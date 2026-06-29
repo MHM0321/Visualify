@@ -7,7 +7,7 @@ export function useSocket({ screenId, userId, name, avatarUrl = null, role, proj
   const socketRef = useRef(null);
   const [viewers, setViewers] = useState([]);
   const [editor, setEditor] = useState(null);
-  const [canEdit, setCanEdit] = useState(null); // null = not yet known
+  const [canEdit, setCanEdit] = useState(false);
   const [newScreen, setNewScreen] = useState(null);
 
   useEffect(() => {
