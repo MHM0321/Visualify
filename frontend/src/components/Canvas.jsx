@@ -352,6 +352,20 @@ function PenPreviewOverlay({ penDrawing, penPoints, isPenMode, zoomRef, panRef }
 
 // ── Canvas ─────────────────────────────────────────────────────────────────────
 const Canvas = ({ elements, selectedId, selectedTool, onPlace, onSelect, onMove, onConnectorComplete, onPenStroke, readOnly }) => {
+  // Detect light theme for canvas dot/bg adaptation
+  const getCanvasBg = () => {
+    const bc = getComputedStyle(document.documentElement).getPropertyValue('--color-bc').trim();
+    return bc || '#121212';
+  };
+  const isLightTheme = () => {
+    const bc = getComputedStyle(document.documentElement).getPropertyValue('--color-bc').trim();
+    if (!bc) return false;
+    // Parse hex brightness
+    const hex = bc.replace('#', '');
+    if (hex.length < 6) return false;
+    const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+    return (r * 299 + g * 587 + b * 114) / 1000 > 128;
+  };
   const outerRef = useRef(null);
   const canvasRef = useRef(null);
   const captureRef = useRef(null);
@@ -633,11 +647,11 @@ const Canvas = ({ elements, selectedId, selectedTool, onPlace, onSelect, onMove,
       style={{
         position: 'relative', width: '100%', height: '100%', overflow: 'hidden',
         cursor,
-        backgroundImage: `radial-gradient(circle, rgba(255,255,255,${0.18 * Math.min(zoom, 1)}) 1px, transparent 1px)`,
+        backgroundImage: `radial-gradient(circle, ${isLightTheme() ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.18)'} 1px, transparent 1px)`,
         backgroundSize: `${24 * zoom}px ${24 * zoom}px`,
         backgroundPosition: `${pan.x}px ${pan.y}px`,
         userSelect: 'none', touchAction: 'none',
-        backgroundColor: '#121212' // Ensure a solid background for image exports
+        backgroundColor: getCanvasBg()
       }}
     >
       {/* Zoom controls */}

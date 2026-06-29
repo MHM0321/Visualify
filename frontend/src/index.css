@@ -9,6 +9,7 @@
   --color-bc: #2c2c2c;
 }
 
+/* ─── Original Themes ─────────────────────────────────── */
 [data-theme="obsidian"] {
   --color-pm: #6366f1;
   --color-sc: #27272a;
@@ -59,13 +60,110 @@
   --color-text: #111111;
 }
 
+/* ─── New Dark Themes ─────────────────────────────────── */
+[data-theme="abyss"] {
+  --color-pm: #22d3ee;
+  --color-sc: #1e293b;
+  --color-bc: #020617;
+}
+
+[data-theme="crimson"] {
+  --color-pm: #fb7185;
+  --color-sc: #3b1e26;
+  --color-bc: #1a0a10;
+}
+
+[data-theme="forest"] {
+  --color-pm: #4ade80;
+  --color-sc: #1c3a28;
+  --color-bc: #0d1f16;
+}
+
+[data-theme="dracula"] {
+  --color-pm: #bd93f9;
+  --color-sc: #44475a;
+  --color-bc: #282a36;
+}
+
+[data-theme="mocha"] {
+  --color-pm: #f38ba8;
+  --color-sc: #45475a;
+  --color-bc: #1e1e2e;
+}
+
+[data-theme="nord"] {
+  --color-pm: #88c0d0;
+  --color-sc: #3b4252;
+  --color-bc: #2e3440;
+}
+
+[data-theme="volcano"] {
+  --color-pm: #fb923c;
+  --color-sc: #431407;
+  --color-bc: #1c0a04;
+}
+
+[data-theme="midnight-blue"] {
+  --color-pm: #818cf8;
+  --color-sc: #1e2749;
+  --color-bc: #0f1730;
+}
+
+[data-theme="graphite"] {
+  --color-pm: #a78bfa;
+  --color-sc: #374151;
+  --color-bc: #1f2937;
+}
+
+[data-theme="ocean"] {
+  --color-pm: #06b6d4;
+  --color-sc: #164e63;
+  --color-bc: #083344;
+}
+
+/* ─── New Light Themes ────────────────────────────────── */
+[data-theme="latte"] {
+  --color-pm: #7c3aed;
+  --color-sc: #d4c5f5;
+  --color-bc: #f5f0ff;
+  --color-text: #1e0a4a;
+}
+
+[data-theme="dawn"] {
+  --color-pm: #0284c7;
+  --color-sc: #bae6fd;
+  --color-bc: #f0f9ff;
+  --color-text: #0c2a3d;
+}
+
+[data-theme="sakura"] {
+  --color-pm: #be185d;
+  --color-sc: #fbcfe8;
+  --color-bc: #fff1f5;
+  --color-text: #4a0a26;
+}
+
+[data-theme="mint"] {
+  --color-pm: #059669;
+  --color-sc: #a7f3d0;
+  --color-bc: #ecfdf5;
+  --color-text: #0a2e20;
+}
+
+[data-theme="clay"] {
+  --color-pm: #b45309;
+  --color-sc: #fcd34d;
+  --color-bc: #fefce8;
+  --color-text: #3b1a04;
+}
+
 /* ── Autofill fix ────────────────────────────────────── */
 @layer base {
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus {
     -webkit-box-shadow: 0 0 0px 1000px var(--color-sc) inset;
-    -webkit-text-fill-color: white;
+    -webkit-text-fill-color: var(--color-text, white);
     transition: background-color 5000s ease-in-out 0s;
   }
 }

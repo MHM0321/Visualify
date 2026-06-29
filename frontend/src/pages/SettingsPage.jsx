@@ -14,9 +14,12 @@ const SettingsPage = () => {
     localStorage.getItem('defaultMemberRole') || 'viewer'
   );
 
+  const [themeOpen, setThemeOpen] = useState(false);
+
   const handleTheme = (themeId) => {
     applyTheme(themeId);
     setActiveTheme(themeId);
+    setThemeOpen(false);
   };
 
   const handleToggleAvatars = () => {
@@ -30,15 +33,16 @@ const SettingsPage = () => {
     localStorage.setItem('defaultMemberRole', role);
   };
 
-  const lightThemes = ['arctic', 'paper'];
-  const isLight = (id) => lightThemes.includes(id);
+  const lightThemeIds = ['arctic', 'paper', 'latte', 'dawn', 'sakura', 'mint', 'clay'];
+  const isLight = (id) => lightThemeIds.includes(id);
+  const activeThemeData = themes.find(t => t.id === activeTheme) || themes[0];
 
   return (
     <div className="bg-bc min-h-screen">
       <NavBar />
       <div className="max-w-2xl mx-auto px-6 py-12 flex flex-col gap-8">
 
-        <button onClick={() => navigate(-1)} className="text-gray-500 text-sm hover:text-white transition self-start">
+        <button onClick={() => navigate(-1)} className="text-gray-500 text-sm hover:text-tx transition self-start">
           ← Back
         </button>
 
@@ -51,41 +55,74 @@ const SettingsPage = () => {
             <p className="text-gray-500 text-xs mt-1">Choose a theme for the entire app</p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            {themes.map(theme => (
-              <button
-                key={theme.id}
-                onClick={() => handleTheme(theme.id)}
-                className={`relative rounded-xl overflow-hidden border-2 transition-all ${
-                  activeTheme === theme.id ? 'border-pm' : 'border-sc hover:border-gray-500'
-                }`}
-              >
-                <div className="h-16 w-full flex flex-col" style={{ backgroundColor: theme.bc }}>
-                  <div className="h-4 w-full flex items-center px-2 gap-1" style={{ backgroundColor: theme.bc, borderBottom: `1px solid ${theme.sc}` }}>
-                    <div className="w-3 h-1.5 rounded-sm" style={{ backgroundColor: theme.pm }} />
-                    <div className="w-2 h-1.5 rounded-sm ml-auto" style={{ backgroundColor: theme.sc }} />
+          {/* Trigger button — shows active theme preview */}
+          <button
+            onClick={() => setThemeOpen(o => !o)}
+            className="w-full flex items-center justify-between border border-sc rounded-xl px-4 py-3 hover:bg-sc transition"
+          >
+            <div className="flex items-center gap-3">
+              {/* Mini theme swatch */}
+              <div className="w-8 h-8 rounded-lg overflow-hidden border border-sc flex-shrink-0" style={{ backgroundColor: activeThemeData.bc }}>
+                <div className="w-full h-2" style={{ backgroundColor: activeThemeData.pm }} />
+                <div className="w-full h-6 flex gap-0.5 p-0.5">
+                  <div className="w-2 rounded-sm" style={{ backgroundColor: activeThemeData.sc }} />
+                  <div className="flex-1 flex flex-col gap-0.5">
+                    <div className="h-1.5 rounded-sm w-3/4" style={{ backgroundColor: activeThemeData.sc }} />
+                    <div className="h-1.5 rounded-sm w-1/2" style={{ backgroundColor: activeThemeData.pm, opacity: 0.6 }} />
                   </div>
-                  <div className="flex-1 p-1.5 flex gap-1">
-                    <div className="w-5 rounded-sm" style={{ backgroundColor: theme.sc }} />
-                    <div className="flex-1 flex flex-col gap-1">
-                      <div className="h-2 rounded-sm w-3/4" style={{ backgroundColor: theme.sc }} />
-                      <div className="h-2 rounded-sm w-1/2" style={{ backgroundColor: theme.pm, opacity: 0.6 }} />
+                </div>
+              </div>
+              <span className="text-tx text-sm font-medium">{activeThemeData.label}</span>
+            </div>
+            <svg
+              width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+              className={`text-gray-400 transition-transform duration-200 ${themeOpen ? 'rotate-180' : ''}`}
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+
+          {/* Collapsible scrollable theme panel */}
+          {themeOpen && (
+            <div className="overflow-y-auto max-h-72 rounded-xl border border-sc p-3 grid grid-cols-3 gap-3"
+              style={{ scrollbarWidth: 'thin' }}
+            >
+              {themes.map(theme => (
+                <button
+                  key={theme.id}
+                  onClick={() => handleTheme(theme.id)}
+                  className={`relative rounded-xl overflow-hidden border-2 transition-all ${
+                    activeTheme === theme.id ? 'border-pm' : 'border-sc hover:border-gray-500'
+                  }`}
+                >
+                  <div className="h-16 w-full flex flex-col" style={{ backgroundColor: theme.bc }}>
+                    <div className="h-4 w-full flex items-center px-2 gap-1" style={{ backgroundColor: theme.bc, borderBottom: `1px solid ${theme.sc}` }}>
+                      <div className="w-3 h-1.5 rounded-sm" style={{ backgroundColor: theme.pm }} />
+                      <div className="w-2 h-1.5 rounded-sm ml-auto" style={{ backgroundColor: theme.sc }} />
+                    </div>
+                    <div className="flex-1 p-1.5 flex gap-1">
+                      <div className="w-5 rounded-sm" style={{ backgroundColor: theme.sc }} />
+                      <div className="flex-1 flex flex-col gap-1">
+                        <div className="h-2 rounded-sm w-3/4" style={{ backgroundColor: theme.sc }} />
+                        <div className="h-2 rounded-sm w-1/2" style={{ backgroundColor: theme.pm, opacity: 0.6 }} />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="px-3 py-2 flex items-center justify-between" style={{ backgroundColor: theme.bc, borderTop: `1px solid ${theme.sc}` }}>
-                  <span className="text-xs font-medium" style={{ color: isLight(theme.id) ? '#111' : '#fff' }}>
-                    {theme.label}
-                  </span>
-                  {activeTheme === theme.id && (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={theme.pm} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
+                  <div className="px-3 py-2 flex items-center justify-between" style={{ backgroundColor: theme.bc, borderTop: `1px solid ${theme.sc}` }}>
+                    <span className="text-xs font-medium" style={{ color: isLight(theme.id) ? '#111' : '#fff' }}>
+                      {theme.label}
+                    </span>
+                    {activeTheme === theme.id && (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={theme.pm} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ── Display ── */}

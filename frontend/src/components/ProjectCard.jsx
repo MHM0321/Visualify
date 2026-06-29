@@ -117,10 +117,10 @@ const ProjectCard = ({ project, currentUserId, onDelete, onRename, onDuplicate, 
             onBlur={handleRename}
             onKeyDown={e => { if (e.key === 'Enter') handleRename(e); if (e.key === 'Escape') { setRenaming(false); setNewName(project.name); } }}
             onClick={e => e.stopPropagation()}
-            className="bg-bc border border-pm rounded-lg px-2 py-1 text-white text-sm focus:outline-none w-full"
+            className="bg-bc border border-pm rounded-lg px-2 py-1 text-tx text-sm focus:outline-none w-full"
           />
         ) : (
-          <h3 className="text-white font-medium text-sm truncate">{project.name}</h3>
+          <h3 className="text-tx font-medium text-sm truncate">{project.name}</h3>
         )}
 
         {/* Thumbnail — grid only */}
@@ -171,7 +171,7 @@ const ProjectCard = ({ project, currentUserId, onDelete, onRename, onDuplicate, 
       <div className="absolute top-3 right-2 opacity-0 group-hover:opacity-100 transition z-10">
         <button
           onClick={handleMenuClick}
-          className="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-white hover:bg-sc transition"
+          className="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 hover:text-tx hover:bg-sc transition"
         >
           ···
         </button>
