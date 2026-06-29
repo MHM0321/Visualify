@@ -7,6 +7,7 @@ export default {
         pm: "var(--color-pm)",
         sc: "var(--color-sc)",
         bc: "var(--color-bc)",
+        tx: "var(--color-text, #ffffff)",
       },
     },
   },

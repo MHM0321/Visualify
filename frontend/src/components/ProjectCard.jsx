@@ -31,6 +31,7 @@ const ProjectCard = ({ project, currentUserId, onDelete, onRename, onDuplicate, 
   const [menuOpen, setMenuOpen] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [newName, setNewName] = useState(project.name);
+  const showAvatars = localStorage.getItem('showMemberAvatars') !== 'false';
 
   const accent = getAccentColor(project._id);
   const isOwner = project.owner === currentUserId ||
@@ -127,6 +128,7 @@ const ProjectCard = ({ project, currentUserId, onDelete, onRename, onDuplicate, 
 
         {/* Footer: avatars + time */}
         <div className="flex items-center justify-between">
+          {showAvatars && (
           <div className="flex -space-x-2">
             {allMembers.map((m, i) => (
               <div
@@ -158,6 +160,7 @@ const ProjectCard = ({ project, currentUserId, onDelete, onRename, onDuplicate, 
               </div>
             )}
           </div>
+          )}
           <span className="text-gray-600 text-xs">{timeAgo(project.lastEditedAt || project.updatedAt)}</span>
         </div>
       </div>

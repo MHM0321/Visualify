@@ -49,12 +49,14 @@
   --color-pm: #0ea5e9;
   --color-sc: #cbd5e1;
   --color-bc: #f0f4f8;
+  --color-text: #111111;
 }
 
 [data-theme="paper"] {
   --color-pm: #8b5cf6;
   --color-sc: #e5e7eb;
   --color-bc: #fafafa;
+  --color-text: #111111;
 }
 
 /* ── Autofill fix ────────────────────────────────────── */
@@ -66,4 +68,8 @@
     -webkit-text-fill-color: white;
     transition: background-color 5000s ease-in-out 0s;
   }
+}
+
+body {
+  color: var(--color-text, #ffffff);
 }
