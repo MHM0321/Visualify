@@ -45,7 +45,7 @@ const EmptyState = ({ message, onAdd }) => (
 
 const SectionHeader = ({ title, count }) => (
   <div className="flex items-center gap-3 mb-5">
-    <h2 className="text-white font-semibold text-sm uppercase tracking-widest">{title}</h2>
+    <h2 className="text-tx font-semibold text-sm uppercase tracking-widest">{title}</h2>
     <span className="text-gray-600 text-xs bg-sc px-2 py-0.5 rounded-full">{count}</span>
     <div className="flex-1 h-px bg-sc" />
   </div>
@@ -129,7 +129,7 @@ const HomePage = () => {
               placeholder="Search projects..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full bg-bc border border-sc rounded-xl pl-9 pr-4 py-2.5 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-pm"
+              className="w-full bg-bc border border-sc rounded-xl pl-9 pr-4 py-2.5 text-tx text-sm placeholder-gray-600 focus:outline-none focus:border-pm"
             />
           </div>
 
@@ -137,7 +137,7 @@ const HomePage = () => {
           <select
             value={sort}
             onChange={e => setSort(e.target.value)}
-            className="bg-bc border border-sc rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-pm cursor-pointer"
+            className="bg-bc border border-sc rounded-xl px-3 py-2.5 text-tx text-sm focus:outline-none focus:border-pm cursor-pointer"
           >
             {SORT_OPTIONS.map(o => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -148,14 +148,14 @@ const HomePage = () => {
           <div className="flex items-center border border-sc rounded-xl overflow-hidden">
             <button
               onClick={() => setView('grid')}
-              className={`px-3 py-2.5 transition ${view === 'grid' ? 'bg-sc text-white' : 'text-gray-500 hover:text-white'}`}
+              className={`px-3 py-2.5 transition ${view === 'grid' ? 'bg-sc text-tx' : 'text-gray-500 hover:text-tx'}`}
               title="Grid view"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
             </button>
             <button
               onClick={() => setView('list')}
-              className={`px-3 py-2.5 transition ${view === 'list' ? 'bg-sc text-white' : 'text-gray-500 hover:text-white'}`}
+              className={`px-3 py-2.5 transition ${view === 'list' ? 'bg-sc text-tx' : 'text-gray-500 hover:text-tx'}`}
               title="List view"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>

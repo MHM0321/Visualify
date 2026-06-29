@@ -10,6 +10,9 @@ const SettingsPage = () => {
   const [showAvatars, setShowAvatars] = useState(
     localStorage.getItem('showMemberAvatars') !== 'false'
   );
+  const [defaultRole, setDefaultRole] = useState(
+    localStorage.getItem('defaultMemberRole') || 'viewer'
+  );
 
   const handleTheme = (themeId) => {
     applyTheme(themeId);
@@ -20,6 +23,11 @@ const SettingsPage = () => {
     const next = !showAvatars;
     setShowAvatars(next);
     localStorage.setItem('showMemberAvatars', String(next));
+  };
+
+  const handleDefaultRole = (role) => {
+    setDefaultRole(role);
+    localStorage.setItem('defaultMemberRole', role);
   };
 
   const lightThemes = ['arctic', 'paper'];
@@ -114,6 +122,39 @@ const SettingsPage = () => {
           </button>
         </div>
 
+        {/* ── Project Defaults ── */}
+        <div className="border border-sc rounded-2xl p-6 flex flex-col gap-4">
+          <div>
+            <h2 className="text-tx font-semibold text-sm">Project Defaults</h2>
+            <p className="text-gray-500 text-xs mt-1">Set the default role when adding members to a new project</p>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-tx text-sm">Default member role</p>
+              <p className="text-gray-500 text-xs">Applied when you open the Create Project form</p>
+            </div>
+            <div className="flex items-center gap-2 border border-sc rounded-xl overflow-hidden">
+              <button
+                onClick={() => handleDefaultRole('viewer')}
+                className={`px-4 py-2 text-sm transition ${
+                  defaultRole === 'viewer' ? 'bg-pm text-white' : 'text-gray-500 hover:text-tx'
+                }`}
+              >
+                Viewer
+              </button>
+              <button
+                onClick={() => handleDefaultRole('editor')}
+                className={`px-4 py-2 text-sm transition ${
+                  defaultRole === 'editor' ? 'bg-pm text-white' : 'text-gray-500 hover:text-tx'
+                }`}
+              >
+                Editor
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* ── About ── */}
         <div className="border border-sc rounded-2xl p-6 flex flex-col gap-4">
           <h2 className="text-tx font-semibold text-sm">About</h2>
@@ -129,18 +170,18 @@ const SettingsPage = () => {
             <p className="text-gray-500 text-xs">Found a bug or have feedback?</p>
             <div className="flex gap-2">
               <a
-                href="mailto:boxloid0321321@gmail.com?subject=Visualify Bug Report"
+                href="mailto:boxloid0321321@gmail.com?subject=Visualify%20Feedback"
                 className="flex-1 text-center border border-sc text-tx rounded-xl py-2.5 text-sm hover:bg-sc transition"
               >
                 📧 Email Us
               </a>
               <a
-                href="https://github.com/boxloid0321321"
+                href="https://github.com/MHM0321"
                 target="_blank"
                 rel="noreferrer"
                 className="flex-1 text-center border border-sc text-tx rounded-xl py-2.5 text-sm hover:bg-sc transition"
               >
-                🐛 GitHub Issues
+                🐙 GitHub Profile
               </a>
             </div>
           </div>

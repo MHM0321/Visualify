@@ -16,7 +16,9 @@ const CreateProject = () => {
   // Member search state
   const [searchName, setSearchName] = useState('');
   const [searchEmail, setSearchEmail] = useState('');
-  const [searchRole, setSearchRole] = useState('viewer');
+  const [searchRole, setSearchRole] = useState(
+    localStorage.getItem('defaultMemberRole') || 'viewer'
+  );
   const [searching, setSearching] = useState(false);
 
   // Added members list: [{ userId, name, email, role }]
@@ -63,7 +65,7 @@ const CreateProject = () => {
       ]);
       setSearchName('');
       setSearchEmail('');
-      setSearchRole('viewer');
+      setSearchRole(localStorage.getItem('defaultMemberRole') || 'viewer');
       toast.success(`${found.name} added as ${searchRole}`);
     } catch (err) {
       toast.error('Failed to search users');
@@ -115,7 +117,7 @@ const CreateProject = () => {
           >
             ← Back
           </button>
-          <h1 className="text-white text-3xl font-bold">New Project</h1>
+          <h1 className="text-tx text-3xl font-bold">New Project</h1>
           <p className="text-gray-400 text-sm mt-1">Set up your project and invite teammates</p>
         </div>
 
@@ -183,7 +185,7 @@ const CreateProject = () => {
                   className="flex items-center justify-between bg-bc border border-sc rounded-xl px-4 py-3"
                 >
                   <div>
-                    <p className="text-white text-sm font-medium">{m.name}</p>
+                    <p className="text-tx text-sm font-medium">{m.name}</p>
                     <p className="text-gray-500 text-xs">{m.email}</p>
                   </div>
                   <div className="flex items-center gap-2">
