@@ -14,6 +14,7 @@ const NumberInput = ({ value, onChange, min, max }) => (
   <input type="number" value={value ?? ''} min={min} max={max}
     onChange={e => onChange(Number(e.target.value))}
     className="bg-bc border border-sc rounded-lg px-2 py-1.5 text-tx text-sm focus:outline-none focus:border-pm w-full" />
+    className="bg-bc border border-sc rounded-lg px-2 py-1.5 text-tx text-sm focus:outline-none focus:border-pm w-full" />
 );
 
 const ColorInput = ({ value, onChange }) => {
@@ -37,6 +38,7 @@ const ColorInput = ({ value, onChange }) => {
 
 const SelectInput = ({ value, onChange, options }) => (
   <select value={value ?? ''} onChange={e => onChange(e.target.value)}
+    className="bg-bc border border-sc rounded-lg px-2 py-1.5 text-tx text-sm focus:outline-none focus:border-pm w-full">
     className="bg-bc border border-sc rounded-lg px-2 py-1.5 text-tx text-sm focus:outline-none focus:border-pm w-full">
     {options.map(o => (
       <option key={o.value ?? o} value={o.value ?? o}>{o.label ?? o}</option>

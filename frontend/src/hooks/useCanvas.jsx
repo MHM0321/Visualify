@@ -21,6 +21,26 @@ const DEFAULT_PROPS = {
   pen:               { color: 'var(--color-text, #ffffff)', strokeWidth: 2, points: [] },
 };
 
+const getThemeColor = () => {
+  if (typeof document === 'undefined') return '#ffffff';
+  const bc = getComputedStyle(document.documentElement).getPropertyValue('--color-bc').trim();
+  if (!bc) return '#ffffff';
+  const hex = bc.replace('#', '');
+  if (hex.length < 6) return '#ffffff';
+  const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 128 ? '#000000' : '#ffffff';
+};
+
+const getPropsForType = (type) => {
+  const color = getThemeColor();
+  const base = DEFAULT_PROPS[type];
+  if (!base) return {};
+  const props = { ...base };
+  if ('borderColor' in props && props.borderColor === '#ffffff') props.borderColor = color;
+  if ('color' in props && props.color === '#ffffff') props.color = color;
+  return props;
+};
+
 export function useCanvas(screenId, isReadOnly = false, socketRef = null) {
   const [elements, setElements] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
@@ -98,7 +118,7 @@ export function useCanvas(screenId, isReadOnly = false, socketRef = null) {
     const el = {
       id: `${type}-${Date.now()}`,
       type, x, y,
-      props: { ...DEFAULT_PROPS[type] },
+      props: getPropsForType(type),
     };
     setElements(prev => {
       const next = [...prev, el];
@@ -113,7 +133,7 @@ export function useCanvas(screenId, isReadOnly = false, socketRef = null) {
     const el = {
       id: `${type}-${Date.now()}`,
       type, fromId, fromAnchor, toId, toAnchor,
-      props: { ...DEFAULT_PROPS[type] },
+      props: getPropsForType(type),
     };
     setElements(prev => {
       const next = [...prev, el];
