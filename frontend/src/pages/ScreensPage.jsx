@@ -48,7 +48,7 @@ const [loading, setLoading] = useState(true);
 useEffect(() => {
   const fetchProject = async () => {
     try {
-      const res = await axios.get(`${API}/api/projects/single/${projectId}?userId=${userId}`);
+      const res = await axios.get(`${API}/api/projects/single/${projectId}?userId=${currentUserId}`);
       setProjectData(res.data);
     } catch (err) {
       console.error("Failed to fetch project", err);
@@ -121,7 +121,7 @@ const isEditor = isOwner || projectData?.members?.some(collab =>
   useEffect(() => {
     const fetchScreens = async () => {
       try {
-        const res = await axios.get(`${API}/api/screens/${projectId}?userId=${userId}`);
+        const res = await axios.get(`${API}/api/screens/${projectId}`);
         setScreens(res.data);
         if (res.data.length > 0 && !selectedScreenId) setSelectedScreenId(res.data[0]._id);
       } catch { setScreens([]); }
