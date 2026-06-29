@@ -15,7 +15,7 @@ const ScreenCard = ({ screen, isSelected, onClick }) => {
 
       {/* Label */}
       <div className={`px-3 py-2 transition-colors duration-200 ${isSelected ? 'bg-pm bg-opacity-10' : 'bg-bc'}`}>
-        <p className={`text-sm font-medium truncate transition-colors duration-200 ${isSelected ? 'text-white' : 'text-gray-400'}`}>
+        <p className={`text-sm font-medium truncate transition-colors duration-200 ${isSelected ? 'text-tx' : 'text-gray-400'}`}>
           {screen.name}
         </p>
       </div>

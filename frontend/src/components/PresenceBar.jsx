@@ -10,7 +10,7 @@ const PresenceBar = ({ viewers, onInviteClick }) => {
       <div className="relative">
         <button
           onClick={() => setShowViewers(v => !v)}
-          className="flex items-center gap-1.5 text-gray-400 hover:text-white transition"
+          className="flex items-center gap-1.5 text-gray-400 hover:text-tx transition"
         >
           {/* Eye SVG */}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -40,7 +40,7 @@ const PresenceBar = ({ viewers, onInviteClick }) => {
                       {v.name?.[0]?.toUpperCase() ?? '?'}
                     </div>
                   )}
-                  <span className="text-white text-sm truncate">{v.name}</span>
+                  <span className="text-tx text-sm truncate">{v.name}</span>
                 </div>
               ))
             )}
@@ -51,7 +51,7 @@ const PresenceBar = ({ viewers, onInviteClick }) => {
       {/* People + plus icon (invite) */}
       <button
         onClick={onInviteClick}
-        className="flex items-center gap-1 text-gray-400 hover:text-white transition"
+        className="flex items-center gap-1 text-gray-400 hover:text-tx transition"
         title="Invite members"
       >
         {/* People SVG */}

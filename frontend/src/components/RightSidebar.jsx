@@ -169,7 +169,7 @@ const RightSidebar = ({ selectedTool, onSelectTool, propertiesSlot }) => {
                     flex flex-col items-center justify-center rounded-lg p-1.5 aspect-square transition-all duration-150
                     ${selectedTool === tool.id
                       ? 'bg-pm text-white'
-                      : 'text-gray-500 hover:bg-sc hover:text-white'
+                      : 'text-gray-500 hover:bg-sc hover:text-tx'
                     }
                   `}
                 >

@@ -1,6 +1,11 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { CONNECTOR_TYPES, CONTAINER_TYPES } from '../hooks/useCanvas';
 
+const resolveColor = (c) => {
+  if (c === '#ffffff' || c === '#fff') return 'var(--color-text, #ffffff)';
+  return c;
+};
+
 // ── Constants ──────────────────────────────────────────────────────────────────
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 4;
@@ -39,7 +44,7 @@ function RectEl({ el, isSelected }) {
   return <div style={{
     width, height,
     background: fill === 'transparent' ? 'transparent' : fill,
-    border: `${borderWidth}px solid ${borderColor}`,
+    border: `${borderWidth}px solid ${resolveColor(borderColor)}`,
     borderRadius: radius,
     outline: isSelected ? '2px solid #6366f1' : 'none',
     outlineOffset: 2, boxSizing: 'border-box',
@@ -48,12 +53,13 @@ function RectEl({ el, isSelected }) {
 
 function SvgContainerEl({ el, isSelected, renderInner }) {
   const { width, height, fill, borderColor, borderWidth, radius } = el.props;
+  const strokeColor = resolveColor(borderColor);
   return (
     <div style={{ width, height, position: 'relative', outline: isSelected ? '2px solid #6366f1' : 'none', outlineOffset: 2 }}>
       <svg width={width} height={height} style={{ position: 'absolute', top: 0, left: 0 }}>
         <rect x={borderWidth/2} y={borderWidth/2} width={width-borderWidth} height={height-borderWidth}
-          rx={radius ?? 4} fill={fill === 'transparent' ? 'none' : fill} stroke={borderColor} strokeWidth={borderWidth} />
-        {renderInner({ width, height, borderColor, borderWidth })}
+          rx={radius ?? 4} fill={fill === 'transparent' ? 'none' : fill} stroke={strokeColor} strokeWidth={borderWidth} />
+        {renderInner({ width, height, borderColor: strokeColor, borderWidth })}
       </svg>
     </div>
   );
@@ -65,7 +71,7 @@ function EllipseEl({ el, isSelected }) {
     <div style={{ width, height, outline: isSelected ? '2px solid #6366f1' : 'none', outlineOffset: 2, borderRadius: '50%' }}>
       <svg width={width} height={height}>
         <ellipse cx={width/2} cy={height/2} rx={width/2-borderWidth/2} ry={height/2-borderWidth/2}
-          fill={fill === 'transparent' ? 'none' : fill} stroke={borderColor} strokeWidth={borderWidth} />
+          fill={fill === 'transparent' ? 'none' : fill} stroke={resolveColor(borderColor)} strokeWidth={borderWidth} />
       </svg>
     </div>
   );
@@ -75,8 +81,8 @@ function TextBoxEl({ el, isSelected }) {
   const { width, height, text, color, fontSize, fontFamily, align } = el.props;
   return (
     <div style={{
-      width, height: height ?? 'auto', minHeight: 28, color, fontSize, fontFamily, textAlign: align,
-      outline: isSelected ? '2px solid #6366f1' : '1px dashed rgba(255,255,255,0.18)',
+      width, height: height ?? 'auto', minHeight: 28, color: resolveColor(color), fontSize, fontFamily, textAlign: align,
+      outline: isSelected ? '2px solid #6366f1' : '1px dashed var(--color-sc, rgba(255,255,255,0.18))',
       outlineOffset: isSelected ? 2 : 0,
       padding: '4px 6px', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
       boxSizing: 'border-box', userSelect: 'none',
@@ -89,6 +95,7 @@ function TextBoxEl({ el, isSelected }) {
 function ImageBoxEl({ el, isSelected }) {
   const { width, height, fill, borderColor, borderWidth, imageData, objectFit } = el.props;
   const bw = borderWidth ?? 2;
+  const strokeColor = resolveColor(borderColor);
   return (
     <div style={{ width, height, position: 'relative', outline: isSelected ? '2px solid #6366f1' : 'none', outlineOffset: 2 }}>
       {imageData ? (
@@ -97,10 +104,10 @@ function ImageBoxEl({ el, isSelected }) {
       ) : (
         <svg width={width} height={height} style={{ position: 'absolute', top: 0, left: 0 }}>
           <rect x={bw/2} y={bw/2} width={width-bw} height={height-bw} rx={4}
-            fill={fill === 'transparent' ? 'none' : fill} stroke={borderColor} strokeWidth={bw} />
-          <circle cx={width*0.3} cy={height*0.38} r={height*0.1} stroke={borderColor} strokeWidth={1.5} fill="none" />
+            fill={fill === 'transparent' ? 'none' : fill} stroke={strokeColor} strokeWidth={bw} />
+          <circle cx={width*0.3} cy={height*0.38} r={height*0.1} stroke={strokeColor} strokeWidth={1.5} fill="none" />
           <polyline points={`${bw},${height-bw} ${width*0.25},${height*0.55} ${width*0.45},${height*0.7} ${width*0.65},${height*0.45} ${width-bw},${height-bw}`}
-            stroke={borderColor} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+            stroke={strokeColor} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" fill="none" />
         </svg>
       )}
     </div>
@@ -121,7 +128,7 @@ function PenEl({ el, isSelected }) {
   return (
     <div style={{ width: w, height: h, outline: isSelected ? '2px solid #6366f1' : 'none', outlineOffset: 2 }}>
       <svg width={w} height={h}>
-        <polyline points={pts} stroke={color ?? '#ffffff'} strokeWidth={strokeWidth ?? 2}
+        <polyline points={pts} stroke={resolveColor(color) ?? 'var(--color-text, #ffffff)'} strokeWidth={strokeWidth ?? 2}
           strokeLinecap="round" strokeLinejoin="round" fill="none" />
       </svg>
     </div>
@@ -193,7 +200,8 @@ function ConnectorLayer({ connectors, elements, selectedId, onSelect, zoom, pan 
         if (!from || !to) return null;
         const p1 = toScreen(anchorAbsPos(from, conn.fromAnchor));
         const p2 = toScreen(anchorAbsPos(to, conn.toAnchor));
-        const { color, strokeWidth } = conn.props;
+        const strokeColor = resolveColor(conn.props.color);
+        const strokeWidth = conn.props.strokeWidth;
         const sel = selectedId === conn.id;
         const as = 9;
         const ang = Math.atan2(p2.y - p1.y, p2.x - p1.x);
@@ -205,15 +213,15 @@ function ConnectorLayer({ connectors, elements, selectedId, onSelect, zoom, pan 
           <g key={conn.id} style={{ pointerEvents: 'stroke', cursor: 'pointer' }} onClick={() => onSelect(conn.id)}>
             <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke="transparent" strokeWidth={14} />
             <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
-              stroke={sel ? '#6366f1' : color} strokeWidth={strokeWidth}
+              stroke={sel ? '#6366f1' : strokeColor} strokeWidth={strokeWidth}
               strokeDasharray={conn.type === 'dotted' ? '6 5' : undefined} strokeLinecap="round" />
             {(conn.type === 'arrow-one' || conn.type === 'arrow-both') && (
               <polyline points={`${a1x},${a1y} ${p2.x},${p2.y} ${a2x},${a2y}`}
-                stroke={sel ? '#6366f1' : color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                stroke={sel ? '#6366f1' : strokeColor} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" fill="none" />
             )}
             {conn.type === 'arrow-both' && (
               <polyline points={`${b1x},${b1y} ${p1.x},${p1.y} ${b2x},${b2y}`}
-                stroke={sel ? '#6366f1' : color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                stroke={sel ? '#6366f1' : strokeColor} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" fill="none" />
             )}
           </g>
         );

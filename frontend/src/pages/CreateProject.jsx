@@ -113,7 +113,7 @@ const CreateProject = () => {
         <div>
           <button
             onClick={() => navigate('/home')}
-            className="text-gray-500 text-sm hover:text-white transition mb-4"
+            className="text-gray-500 text-sm hover:text-tx transition mb-4"
           >
             ← Back
           </button>
@@ -129,7 +129,7 @@ const CreateProject = () => {
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
             placeholder="e.g. Mobile Redesign"
-            className="bg-bc border border-sc rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-pm"
+            className="bg-bc border border-sc rounded-xl px-4 py-3 text-tx placeholder-gray-500 focus:outline-none focus:border-pm"
           />
         </div>
 
@@ -143,14 +143,14 @@ const CreateProject = () => {
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
               placeholder="Member name"
-              className="bg-bc border border-sc rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-pm"
+              className="bg-bc border border-sc rounded-xl px-4 py-3 text-tx placeholder-gray-500 focus:outline-none focus:border-pm"
             />
             <input
               type="email"
               value={searchEmail}
               onChange={(e) => setSearchEmail(e.target.value)}
               placeholder="Member email"
-              className="bg-bc border border-sc rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-pm"
+              className="bg-bc border border-sc rounded-xl px-4 py-3 text-tx placeholder-gray-500 focus:outline-none focus:border-pm"
             />
 
             {/* Role selector + Add button */}
@@ -158,7 +158,7 @@ const CreateProject = () => {
               <select
                 value={searchRole}
                 onChange={(e) => setSearchRole(e.target.value)}
-                className="bg-bc border border-sc rounded-xl px-3 py-3 text-white focus:outline-none focus:border-pm flex-1"
+                className="bg-bc border border-sc rounded-xl px-3 py-3 text-tx focus:outline-none focus:border-pm flex-1"
               >
                 <option value="viewer">Viewer</option>
                 <option value="editor">Editor</option>
@@ -166,7 +166,7 @@ const CreateProject = () => {
               <button
                 onClick={handleAddMember}
                 disabled={searching}
-                className="bg-sc text-white rounded-xl px-5 py-3 font-semibold hover:opacity-80 transition disabled:opacity-50"
+                className="bg-sc text-tx rounded-xl px-5 py-3 font-semibold hover:opacity-80 transition disabled:opacity-50"
               >
                 {searching ? '...' : 'Add'}
               </button>
@@ -192,7 +192,7 @@ const CreateProject = () => {
                     <select
                       value={m.role}
                       onChange={(e) => handleRoleChange(m.email, e.target.value)}
-                      className="bg-bc border border-sc rounded-lg px-2 py-1 text-white text-xs focus:outline-none"
+                      className="bg-bc border border-sc rounded-lg px-2 py-1 text-tx text-xs focus:outline-none"
                     >
                       <option value="viewer">Viewer</option>
                       <option value="editor">Editor</option>

@@ -6,19 +6,19 @@ export const CONNECTOR_TYPES = new Set(['line', 'arrow-one', 'arrow-both', 'dott
 export const CONTAINER_TYPES = new Set(['rectangle', 'ellipse', 'rect-1partition', 'rect-2partition', 'rect-1row', 'rect-2rows', 'imagebox', 'textbox']);
 
 const DEFAULT_PROPS = {
-  rectangle:         { width: 160, height: 100, fill: 'transparent', borderColor: '#ffffff', borderWidth: 2, radius: 4 },
-  ellipse:           { width: 160, height: 100, fill: 'transparent', borderColor: '#ffffff', borderWidth: 2 },
-  'rect-1partition': { width: 160, height: 100, fill: 'transparent', borderColor: '#ffffff', borderWidth: 2, radius: 4 },
-  'rect-2partition': { width: 160, height: 100, fill: 'transparent', borderColor: '#ffffff', borderWidth: 2, radius: 4 },
-  'rect-1row':       { width: 160, height: 100, fill: 'transparent', borderColor: '#ffffff', borderWidth: 2, radius: 4 },
-  'rect-2rows':      { width: 160, height: 100, fill: 'transparent', borderColor: '#ffffff', borderWidth: 2, radius: 4 },
-  line:              { color: '#ffffff', strokeWidth: 2 },
-  'arrow-one':       { color: '#ffffff', strokeWidth: 2 },
-  'arrow-both':      { color: '#ffffff', strokeWidth: 2 },
-  dotted:            { color: '#ffffff', strokeWidth: 2 },
-  textbox:           { width: 160, height: 60, text: 'Text', color: '#ffffff', fontSize: 16, fontFamily: 'sans-serif', align: 'left' },
-  imagebox:          { width: 160, height: 120, fill: 'transparent', borderColor: '#ffffff', borderWidth: 2, imageData: null, objectFit: 'contain' },
-  pen:               { color: '#ffffff', strokeWidth: 2, points: [] },
+  rectangle:         { width: 160, height: 100, fill: 'transparent', borderColor: 'var(--color-text, #ffffff)', borderWidth: 2, radius: 4 },
+  ellipse:           { width: 160, height: 100, fill: 'transparent', borderColor: 'var(--color-text, #ffffff)', borderWidth: 2 },
+  'rect-1partition': { width: 160, height: 100, fill: 'transparent', borderColor: 'var(--color-text, #ffffff)', borderWidth: 2, radius: 4 },
+  'rect-2partition': { width: 160, height: 100, fill: 'transparent', borderColor: 'var(--color-text, #ffffff)', borderWidth: 2, radius: 4 },
+  'rect-1row':       { width: 160, height: 100, fill: 'transparent', borderColor: 'var(--color-text, #ffffff)', borderWidth: 2, radius: 4 },
+  'rect-2rows':      { width: 160, height: 100, fill: 'transparent', borderColor: 'var(--color-text, #ffffff)', borderWidth: 2, radius: 4 },
+  line:              { color: 'var(--color-text, #ffffff)', strokeWidth: 2 },
+  'arrow-one':       { color: 'var(--color-text, #ffffff)', strokeWidth: 2 },
+  'arrow-both':      { color: 'var(--color-text, #ffffff)', strokeWidth: 2 },
+  dotted:            { color: 'var(--color-text, #ffffff)', strokeWidth: 2 },
+  textbox:           { width: 160, height: 60, text: 'Text', color: 'var(--color-text, #ffffff)', fontSize: 16, fontFamily: 'sans-serif', align: 'left' },
+  imagebox:          { width: 160, height: 120, fill: 'transparent', borderColor: 'var(--color-text, #ffffff)', borderWidth: 2, imageData: null, objectFit: 'contain' },
+  pen:               { color: 'var(--color-text, #ffffff)', strokeWidth: 2, points: [] },
 };
 
 export function useCanvas(screenId, isReadOnly = false, socketRef = null) {
