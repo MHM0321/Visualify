@@ -45,6 +45,8 @@ export async function updateScreenContent(req, res) {
             { new: true }
         );
         if (!screen) return res.status(404).json({ message: "Screen not found" });
+
+        await Project.findByIdAndUpdate(screen.projectId, { lastEditedAt: new Date() });
         res.status(200).json(screen);
     }
     catch (error) {

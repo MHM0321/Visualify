@@ -161,7 +161,7 @@ const ProjectCard = ({ project, currentUserId, onDelete, onRename, onDuplicate }
 
             {/* Last edited */}
             <span className="text-gray-600 text-xs">
-              {timeAgo(project.updatedAt)}
+              {timeAgo(project.lastEditedAt || project.updatedAt)}
             </span>
           </div>
         </div>
